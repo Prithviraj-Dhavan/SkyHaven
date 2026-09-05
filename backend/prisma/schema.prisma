@@ -1,0 +1,152 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String    @id @default(uuid())
+  name          String
+  email         String    @unique
+  password_hash String
+  role          String    @default("CUSTOMER") // CUSTOMER | ADMIN
+  phone         String?
+  avatar_url    String?
+  created_at    DateTime  @default(now())
+  updated_at    DateTime  @updatedAt
+
+  bookings      Booking[]
+
+  @@map("users")
+}
+
+model City {
+  id         String    @id @default(uuid())
+  name       String
+  country    String
+  timezone   String    @default("UTC")
+  image_url  String?
+  created_at DateTime  @default(now())
+
+  airports   Airport[]
+
+  @@map("cities")
+}
+
+model Airport {
+  id                  String   @id @default(uuid())
+  code                String   @unique // IATA code
+  name                String
+  city_id             String
+  latitude            Float?
+  longitude           Float?
+  created_at          DateTime @default(now())
+
+  city                City     @relation(fields: [city_id], references: [id], onDelete: Cascade)
+  departing_flights   Flight[] @relation("FlightOrigin")
+  arriving_flights    Flight[] @relation("FlightDestination")
+
+  @@map("airports")
+}
+
+model Flight {
+  id                     String       @id @default(uuid())
+  flight_number          String       @unique // e.g. AM-102
+  airline                String
+  origin_airport_id      String
+  destination_airport_id String
+  departure_time         DateTime
+  arrival_time           DateTime
+  base_price             Float
+  aircraft_type          String
+  duration_minutes       Int
+  status                 String       @default("SCHEDULED") // SCHEDULED, DELAYED, DEPARTED, COMPLETED, CANCELLED
+  gate                   String?
+  terminal               String?
+  created_at             DateTime     @default(now())
+  updated_at             DateTime     @updatedAt
+
+  origin_airport         Airport      @relation("FlightOrigin", fields: [origin_airport_id], references: [id])
+  destination_airport    Airport      @relation("FlightDestination", fields: [destination_airport_id], references: [id])
+  seats                  Seat[]
+  bookings               Booking[]
+
+  @@index([origin_airport_id, destination_airport_id, departure_time], name: "idx_flight_hot_search")
+  @@map("flights")
+}
+
+model Seat {
+  id             String     @id @default(uuid())
+  flight_id      String
+  seat_number    String     // e.g. "1A", "14F"
+  cabin_class    String     @default("ECONOMY") // ECONOMY, PREMIUM_ECONOMY, BUSINESS, FIRST
+  is_booked      Boolean    @default(false)
+  price_modifier Float      @default(0.0)
+  row            Int
+  column         String
+  is_exit_row    Boolean    @default(false)
+  created_at     DateTime   @default(now())
+  updated_at     DateTime   @updatedAt
+
+  flight         Flight     @relation(fields: [flight_id], references: [id], onDelete: Cascade)
+  tickets        Ticket[]
+
+  @@unique([flight_id, seat_number])
+  @@map("seats")
+}
+
+model Booking {
+  id                String        @id @default(uuid())
+  booking_reference String        @unique // e.g. "AM-789234"
+  user_id           String
+  flight_id         String
+  status            String        @default("CONFIRMED") // PENDING, CONFIRMED, CANCELLED
+  total_amount      Float
+  created_at        DateTime      @default(now())
+  updated_at        DateTime      @updatedAt
+
+  user              User          @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  flight            Flight        @relation(fields: [flight_id], references: [id], onDelete: Cascade)
+  tickets           Ticket[]
+  payments          Payment[]
+
+  @@map("bookings")
+}
+
+model Ticket {
+  id                 String        @id @default(uuid())
+  ticket_number      String        @unique // e.g. "TKT-9832104"
+  booking_id         String
+  seat_id            String
+  passenger_name     String
+  passenger_email    String
+  passenger_document String
+  passenger_type     String        @default("ADULT") // ADULT, CHILD, INFANT
+  pdf_url            String?
+  created_at         DateTime      @default(now())
+
+  booking            Booking       @relation(fields: [booking_id], references: [id], onDelete: Cascade)
+  seat               Seat          @relation(fields: [seat_id], references: [id], onDelete: Cascade)
+
+  @@map("tickets")
+}
+
+model Payment {
+  id              String        @id @default(uuid())
+  booking_id      String
+  provider        String        @default("MOCK_PAYMENT_GATEWAY")
+  status          String        @default("SUCCESS") // PENDING, SUCCESS, FAILED, REFUNDED
+  amount          Float
+  currency        String        @default("USD")
+  transaction_ref String        @unique
+  payment_method  String        @default("CREDIT_CARD")
+  card_last4      String?
+  created_at      DateTime      @default(now())
+
+  booking         Booking       @relation(fields: [booking_id], references: [id], onDelete: Cascade)
+
+  @@map("payments")
+}
