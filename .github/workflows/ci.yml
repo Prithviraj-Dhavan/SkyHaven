@@ -1,0 +1,34 @@
+name: SkyHaven CI Pipeline
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  validate-and-test:
+    name: Lint, Test & Build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 20.x
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install Monorepo Dependencies
+        run: npm ci
+
+      - name: Run Backend Unit & Integration Tests
+        run: npm run test --workspace=backend
+
+      - name: Run Frontend Component & Unit Tests
+        run: npm run test --workspace=frontend
+
+      - name: Build Monolith & Client (Typecheck & Bundling)
+        run: npm run build
