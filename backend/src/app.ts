@@ -11,6 +11,7 @@ import { bookingRoutes } from './modules/bookings/bookings.routes.js';
 import { aiRoutes } from './modules/ai/ai.routes.js';
 import { adminRoutes } from './modules/admin/admin.routes.js';
 import { NotificationsService } from './modules/notifications/notifications.service.js';
+import { getSystemTelemetry } from './utils/systemInfo.js';
 
 export function createApp() {
   const app = express();
@@ -44,6 +45,7 @@ export function createApp() {
 
   // Healthcheck & Monolith Info Endpoint
   app.get('/health', (req, res) => {
+    const telemetry = getSystemTelemetry();
     res.status(200).json({
       status: 'healthy',
       system: 'SkyHaven Monolith Server',
@@ -51,6 +53,7 @@ export function createApp() {
       environment: env.NODE_ENV,
       modules: ['auth', 'flights', 'bookings', 'payments', 'ai_assistant', 'notifications', 'admin'],
       version: '1.0.0',
+      telemetry,
     });
   });
 
