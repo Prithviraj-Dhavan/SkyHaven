@@ -136,12 +136,23 @@ docker compose up --build
 ## 🧪 Testing
 
 ```bash
+# Run all tests (backend + frontend)
+npm run test
+
 # Run backend API tests (Supertest + Jest)
 npm run test --workspace=backend
 
 # Run frontend tests (Vitest)
 npm run test --workspace=frontend
 ```
+
+---
+
+## 📚 Documentation & Contributing
+
+- 📡 [REST API Documentation](docs/API_DOCUMENTATION.md) — Comprehensive reference for all API endpoints, schemas, and payload examples.
+- 🤝 [Contributing Guidelines](CONTRIBUTING.md) — Setup instructions, PR workflows, and conventional commit rules.
+- 📜 [Code of Conduct](CODE_OF_CONDUCT.md) — Community pledge and standards.
 
 ---
 
