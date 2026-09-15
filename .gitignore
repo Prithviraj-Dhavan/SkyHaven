@@ -6,6 +6,7 @@ build/
 
 # Environment files (Strictly Ignored)
 .env
+.env.example
 .env*
 *.env
 **/.env
