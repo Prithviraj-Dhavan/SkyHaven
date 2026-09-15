@@ -144,9 +144,7 @@ export const FlightDeals: React.FC = () => {
             <div>
               {/* Header: Flash Tag & Flight Number */}
               <div className="flex items-center justify-between gap-2 mb-4">
-                <span className="px-2.5 py-0.5 rounded-full bg-amber-500/15 text-amber-600 dark:text-amber-400 text-[10px] font-mono font-black uppercase tracking-wide border border-amber-500/30">
-                  {deal.tag}
-                </span>
+
                 <span className="text-[11px] font-mono font-bold text-slate-400">
                   {deal.flightNumber}
                 </span>
@@ -182,7 +180,7 @@ export const FlightDeals: React.FC = () => {
 
               <div className="text-[11px] text-slate-500 mt-2 flex items-center justify-between">
                 <span>Airline: <strong className="text-slate-700 dark:text-slate-300">{deal.airline}</strong></span>
-                <span className="text-amber-500 font-bold text-[10px]">{deal.seatsLeft} seats left</span>
+
               </div>
             </div>
 
