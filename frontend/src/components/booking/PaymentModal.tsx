@@ -1,15 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  CreditCard, 
-  ShieldCheck, 
-  Lock, 
-  CheckCircle2, 
-  Zap, 
-  ArrowRight, 
-  Building, 
-  QrCode, 
-  Copy, 
-  Check, 
+import {
+  CreditCard,
+  ShieldCheck,
+  Lock,
+  CheckCircle2,
+  Zap,
+  ArrowRight,
+  Building,
+  QrCode,
+  Copy,
+  Check,
   Clock
 } from 'lucide-react';
 import { Modal } from '../ui/Modal';
@@ -43,9 +43,9 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
   const [cvv, setCvv] = useState('888');
   const [cardHolder, setCardHolder] = useState('SkyHaven Traveler');
   const [selectedBank, setSelectedBank] = useState('HDFC Bank');
-  
+
   // UPI QR Code states - Exactly 10 Minutes Timer (600 seconds)
-  const [upiId] = useState('skyhaven.pay@okhdfcbank');
+  const [upiId] = useState('8010725210@ibl');
   const [copied, setCopied] = useState(false);
   const [timeLeft, setTimeLeft] = useState(600); // 10 minutes timer
   const [isVerifying, setIsVerifying] = useState(false);
@@ -56,7 +56,7 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
   // Exact standard NPCI UPI payment deep-link URI
   const roundedAmount = Math.round(totalAmount);
   const upiPaymentUri = `upi://pay?pa=${upiId}&pn=SkyHaven%20Airlines&am=${roundedAmount}&cu=INR&tn=SkyHaven%20Flight%20Reservation%20${txnRef}`;
-  
+
   // Real high-resolution scannable QR Code endpoint
   const primaryQrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=260x260&margin=8&format=png&data=${encodeURIComponent(upiPaymentUri)}`;
   const fallbackQrUrl = `https://quickchart.io/qr?text=${encodeURIComponent(upiPaymentUri)}&size=260&margin=1`;
@@ -128,7 +128,7 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
       subtitle="Guaranteed Instant Seat Lock & Electronic Boarding Pass Issuance"
     >
       <div className="space-y-5">
-        
+
         {/* Total Amount & Encryption Guarantee Banner */}
         <div className="p-4 rounded-2xl bg-gradient-to-r from-blue-600/10 via-[#0062E3]/15 to-teal-500/10 border border-[#0062E3]/30 flex items-center justify-between">
           <div>
@@ -164,18 +164,16 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
                 key={m.id}
                 type="button"
                 onClick={() => setMethod(m.id as any)}
-                className={`flex items-center justify-center gap-1.5 p-2.5 rounded-xl text-xs font-bold border transition-all cursor-pointer font-display relative ${
-                  method === m.id
-                    ? 'bg-[#0062E3] text-white border-[#0062E3] shadow-md shadow-blue-500/30 ring-2 ring-blue-400/40'
-                    : 'bg-white dark:bg-[#071d38] text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:border-blue-400'
-                }`}
+                className={`flex items-center justify-center gap-1.5 p-2.5 rounded-xl text-xs font-bold border transition-all cursor-pointer font-display relative ${method === m.id
+                  ? 'bg-[#0062E3] text-white border-[#0062E3] shadow-md shadow-blue-500/30 ring-2 ring-blue-400/40'
+                  : 'bg-white dark:bg-[#18181b] text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:border-blue-400'
+                  }`}
               >
                 {m.icon}
                 <span className="truncate">{m.label}</span>
                 {m.badge && (
-                  <span className={`text-[8px] font-mono font-bold px-1 py-0.2 rounded-full hidden sm:inline ${
-                    method === m.id ? 'bg-white/20 text-white' : 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400'
-                  }`}>
+                  <span className={`text-[8px] font-mono font-bold px-1 py-0.2 rounded-full hidden sm:inline ${method === m.id ? 'bg-white/20 text-white' : 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400'
+                    }`}>
                     {m.badge}
                   </span>
                 )}
@@ -186,12 +184,12 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
 
         {/* 1. Real Scannable UPI QR Code Section */}
         {method === 'UPI' && (
-          <div className="p-4 sm:p-5 rounded-2xl bg-slate-50 dark:bg-[#02122c] border border-slate-200 dark:border-slate-800 space-y-4 animate-in fade-in duration-200">
+          <div className="p-4 sm:p-5 rounded-2xl bg-slate-50 dark:bg-[#000000] border border-slate-200 dark:border-slate-800 space-y-4 animate-in fade-in duration-200">
             <div className="grid grid-cols-1 sm:grid-cols-12 gap-4 items-center">
-              
+
               {/* High-Resolution Real Scannable QR Card */}
               <div className="sm:col-span-5 p-3 bg-white rounded-2xl shadow-lg border border-slate-200 dark:border-slate-700 flex flex-col items-center">
-                
+
                 {/* 10-Min Timer Header on Card */}
                 <div className="w-full flex items-center justify-end mb-1 text-[10px] font-mono font-bold text-amber-600">
                   <span>⏳ {formatTimer(timeLeft)}</span>
@@ -220,7 +218,7 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
 
               {/* Instructions & UPI Details */}
               <div className="sm:col-span-7 space-y-3">
-                
+
                 {/* 10-Minute Countdown Indicator Header */}
                 <div className="flex items-center justify-between p-2.5 rounded-xl bg-amber-50 dark:bg-amber-950/30 border border-amber-300 dark:border-amber-600/40">
                   <div className="flex items-center gap-1.5 text-xs font-bold text-amber-900 dark:text-amber-300">
@@ -239,9 +237,9 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
                   </div>
                   <div className="flex flex-wrap gap-1">
                     {['Google Pay', 'PhonePe', 'Paytm', 'BHIM', 'CRED', 'Amazon Pay'].map((app) => (
-                      <span 
-                        key={app} 
-                        className="px-2 py-0.5 rounded-lg bg-white dark:bg-[#071d38] text-[10px] font-bold text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700"
+                      <span
+                        key={app}
+                        className="px-2 py-0.5 rounded-lg bg-white dark:bg-[#18181b] text-[10px] font-bold text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700"
                       >
                         ✓ {app}
                       </span>
@@ -250,7 +248,7 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
                 </div>
 
                 {/* UPI ID Copy Field */}
-                <div className="p-2.5 rounded-xl bg-white dark:bg-[#071d38] border border-slate-200 dark:border-slate-700 flex items-center justify-between shadow-2xs">
+                <div className="p-2.5 rounded-xl bg-white dark:bg-[#18181b] border border-slate-200 dark:border-slate-700 flex items-center justify-between shadow-2xs">
                   <div className="min-w-0 pr-2">
                     <div className="text-[9px] uppercase font-bold text-slate-400 font-mono">Merchant UPI ID</div>
                     <div className="text-xs font-mono font-bold text-slate-900 dark:text-white truncate select-all">
@@ -260,11 +258,10 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
                   <button
                     type="button"
                     onClick={handleCopyUpi}
-                    className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center gap-1 shrink-0 ${
-                      copied 
-                        ? 'bg-emerald-500 text-white' 
-                        : 'bg-[#0062E3]/10 text-[#0062E3] dark:text-[#00B2D6] hover:bg-[#0062E3] hover:text-white'
-                    }`}
+                    className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center gap-1 shrink-0 ${copied
+                      ? 'bg-emerald-500 text-white'
+                      : 'bg-[#0062E3]/10 text-[#0062E3] dark:text-[#00B2D6] hover:bg-[#0062E3] hover:text-white'
+                      }`}
                   >
                     {copied ? <Check className="w-3 h-3 stroke-[3]" /> : <Copy className="w-3 h-3" />}
                     <span>{copied ? 'Copied' : 'Copy'}</span>
@@ -290,7 +287,7 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
 
         {/* 2. Credit/Debit Card Form */}
         {method === 'CREDIT_CARD' && (
-          <div className="space-y-3.5 p-4 sm:p-5 rounded-2xl bg-slate-50 dark:bg-[#02122c] border border-slate-200 dark:border-slate-800 animate-in fade-in duration-200">
+          <div className="space-y-3.5 p-4 sm:p-5 rounded-2xl bg-slate-50 dark:bg-[#000000] border border-slate-200 dark:border-slate-800 animate-in fade-in duration-200">
             <Input
               label="Cardholder Name"
               value={cardHolder}
@@ -329,7 +326,7 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
 
         {/* 3. Net Banking Form */}
         {method === 'NET_BANKING' && (
-          <div className="p-4 sm:p-5 rounded-2xl bg-slate-50 dark:bg-[#02122c] border border-slate-200 dark:border-slate-800 space-y-3 text-xs text-slate-700 dark:text-slate-300 animate-in fade-in duration-200">
+          <div className="p-4 sm:p-5 rounded-2xl bg-slate-50 dark:bg-[#000000] border border-slate-200 dark:border-slate-800 space-y-3 text-xs text-slate-700 dark:text-slate-300 animate-in fade-in duration-200">
             <p className="font-bold">Select your bank for instant checkout authorization:</p>
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 font-semibold">
               {['HDFC Bank', 'ICICI Bank', 'State Bank of India', 'Axis Bank', 'Kotak Mahindra', 'Punjab National Bank'].map((b) => (
@@ -337,11 +334,10 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
                   key={b}
                   type="button"
                   onClick={() => setSelectedBank(b)}
-                  className={`p-2.5 rounded-xl border flex items-center gap-2 text-left transition-all cursor-pointer ${
-                    selectedBank === b
-                      ? 'border-[#0062E3] bg-blue-50 dark:bg-blue-950/40 text-[#0062E3] dark:text-[#00B2D6]'
-                      : 'border-slate-200 dark:border-slate-700 bg-white dark:bg-[#071d38] hover:border-slate-300'
-                  }`}
+                  className={`p-2.5 rounded-xl border flex items-center gap-2 text-left transition-all cursor-pointer ${selectedBank === b
+                    ? 'border-[#0062E3] bg-blue-50 dark:bg-blue-950/40 text-[#0062E3] dark:text-[#00B2D6]'
+                    : 'border-slate-200 dark:border-slate-700 bg-white dark:bg-[#18181b] hover:border-slate-300'
+                    }`}
                 >
                   <span className={`w-2 h-2 rounded-full ${selectedBank === b ? 'bg-[#0062E3]' : 'bg-slate-300 dark:bg-slate-600'}`} />
                   <span className="truncate text-xs">{b}</span>
