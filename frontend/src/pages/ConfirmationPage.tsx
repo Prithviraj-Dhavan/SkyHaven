@@ -50,8 +50,8 @@ export const ConfirmationPage: React.FC = () => {
         <p className="text-xs text-slate-500">
           Check your past and upcoming flights in your profile dashboard.
         </p>
-        <Button onClick={() => navigate('/my-bookings')} variant="glow">
-          Go to My Bookings
+        <Button onClick={() => navigate('/')} variant="glow">
+          Go to Home
         </Button>
       </div>
     );

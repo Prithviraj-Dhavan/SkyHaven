@@ -260,7 +260,6 @@ export const HeroSearch: React.FC = () => {
     { id: 'DIRECT', label: 'Direct Flights', icon: <Zap className="w-4 h-4" /> },
     { id: 'PREMIUM', label: 'Business & First', icon: <Crown className="w-4 h-4" /> },
     { id: 'CALENDAR', label: 'Low Fare Calendar', icon: <CalendarIcon className="w-4 h-4" /> },
-    { id: 'STATUS', label: 'Flight Status & Radar', icon: <Radar className="w-4 h-4" /> },
   ];
 
   const specialFareOptions = [

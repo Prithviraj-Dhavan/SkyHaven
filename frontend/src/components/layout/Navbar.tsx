@@ -144,17 +144,6 @@ export const Navbar: React.FC = () => {
                 <span>Explore Everywhere</span>
               </button>
 
-              <Link
-                to="/my-bookings"
-                className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all ${
-                  isActive('/my-bookings')
-                    ? 'bg-[#0062E3] text-white shadow-sm shadow-blue-500/30'
-                    : 'text-white/90 hover:text-white hover:bg-white/10'
-                }`}
-              >
-                <Radio className="w-3.5 h-3.5 text-emerald-400 animate-pulse" />
-                <span>Trips & Radar</span>
-              </Link>
 
               {isAdmin && (
                 <Link
@@ -239,14 +228,7 @@ export const Navbar: React.FC = () => {
                         <div className="text-xs font-bold text-white">{user.name}</div>
                         <div className="text-[11px] text-slate-400 truncate">{user.email}</div>
                       </div>
-                      <Link
-                        to="/my-bookings"
-                        onClick={() => setIsUserMenuOpen(false)}
-                        className="flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-semibold hover:bg-white/10"
-                      >
-                        <Ticket className="w-4 h-4 text-[#0062E3]" />
-                        <span>My Itineraries</span>
-                      </Link>
+
                       {isAdmin && (
                         <Link
                           to="/admin"

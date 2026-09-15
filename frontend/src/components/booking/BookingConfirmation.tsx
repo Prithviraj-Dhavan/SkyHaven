@@ -57,14 +57,10 @@ export const BookingConfirmation: React.FC<{ booking: Booking }> = ({ booking })
 
       {/* Action Footer */}
       <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-6">
-        <Link to="/my-bookings">
-          <Button variant="glow" size="lg" leftIcon={<Ticket className="w-4 h-4" />}>
-            View in My Bookings
-          </Button>
-        </Link>
+
         <Link to="/">
           <Button variant="outline" size="lg" rightIcon={<ArrowRight className="w-4 h-4" />}>
-            Book Another Flight
+            Go to Home
           </Button>
         </Link>
       </div>

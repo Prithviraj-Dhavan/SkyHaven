@@ -90,12 +90,6 @@ export const Footer: React.FC = () => {
                 <Link to="/search" className="hover:text-[#0062E3] dark:hover:text-white transition-colors">Explore Everywhere</Link>
               </li>
               <li>
-                <Link to="/my-bookings" className="hover:text-[#0062E3] dark:hover:text-white transition-colors">Live Flight Radar</Link>
-              </li>
-              <li>
-                <Link to="/my-bookings" className="hover:text-[#0062E3] dark:hover:text-white transition-colors">Manage My Bookings</Link>
-              </li>
-              <li>
                 <span className="hover:text-[#0062E3] dark:hover:text-white transition-colors cursor-pointer">Flight Price Alerts</span>
               </li>
               <li>
