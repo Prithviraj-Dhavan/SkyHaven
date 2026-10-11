@@ -10,7 +10,9 @@ export const flightSearchSchema = z.object({
     cabinClass: z.enum(['ECONOMY', 'PREMIUM_ECONOMY', 'BUSINESS', 'FIRST']).optional().default('ECONOMY'),
     maxPrice: z.string().optional().transform((val) => (val ? Number(val) : undefined)),
     airlines: z.string().optional(), // comma separated
-    sortBy: z.enum(['price_asc', 'price_desc', 'duration_asc', 'departure_asc']).optional().default('price_asc'),
+    sortBy: z.enum(['best', 'price_asc', 'price_desc', 'duration_asc', 'departure_asc']).optional().default('best'),
+    timeOfDay: z.string().optional(),
+    stops: z.string().optional(),
     page: z.string().optional().default('1').transform(Number),
     limit: z.string().optional().default('20').transform(Number),
   }),
