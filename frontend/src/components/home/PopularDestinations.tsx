@@ -9,11 +9,11 @@ export const PopularDestinations: React.FC = () => {
   const [activeCategory, setActiveCategory] = useState('all');
 
   const categories = [
-    { id: 'all', label: 'All Destinations', icon: <Compass className="w-3.5 h-3.5" /> },
-    { id: 'beach', label: 'Beach Getaways', icon: <Palmtree className="w-3.5 h-3.5" /> },
-    { id: 'weekend', label: 'Weekend Trips', icon: <Sun className="w-3.5 h-3.5" /> },
-    { id: 'international', label: 'International', icon: <Globe className="w-3.5 h-3.5" /> },
-    { id: 'budget', label: 'Budget Friendly', icon: <Tag className="w-3.5 h-3.5" /> },
+    { id: 'all', label: 'All Destinations' },
+    { id: 'beach', label: 'Beach Getaways' },
+    { id: 'weekend', label: 'Weekend Trips' },
+    { id: 'international', label: 'International' },
+    { id: 'budget', label: 'Budget Friendly' },
   ];
 
   const destinations = [
@@ -25,7 +25,7 @@ export const PopularDestinations: React.FC = () => {
       image: 'https://images.unsplash.com/photo-1512343879784-a960bf40e7f2?auto=format&fit=crop&w=800&q=80',
       price: '₹3,650',
       originalPrice: '₹5,200',
-      tag: '🌴 Sun & Beaches',
+      tag: 'Sun & Beaches',
       direct: true,
     },
     {
@@ -36,7 +36,7 @@ export const PopularDestinations: React.FC = () => {
       image: 'https://images.unsplash.com/photo-1512453979798-5ea266f8880c?auto=format&fit=crop&w=800&q=80',
       price: '₹18,500',
       originalPrice: '₹24,000',
-      tag: '✨ Luxury & Shopping',
+      tag: 'Luxury & Shopping',
       direct: true,
     },
     {
@@ -47,7 +47,7 @@ export const PopularDestinations: React.FC = () => {
       image: 'https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?auto=format&fit=crop&w=800&q=80',
       price: '₹48,000',
       originalPrice: '₹62,000',
-      tag: '🏛️ Culture & Heritage',
+      tag: 'Culture & Heritage',
       direct: true,
     },
     {
@@ -58,7 +58,7 @@ export const PopularDestinations: React.FC = () => {
       image: 'https://images.unsplash.com/photo-1596176530529-78163a4f7af2?auto=format&fit=crop&w=800&q=80',
       price: '₹4,150',
       originalPrice: '₹5,800',
-      tag: '🚀 Tech & Gardens',
+      tag: 'Tech & Gardens',
       direct: true,
     },
     {
@@ -69,7 +69,7 @@ export const PopularDestinations: React.FC = () => {
       image: 'https://images.unsplash.com/photo-1525625293386-3f8f99389edd?auto=format&fit=crop&w=800&q=80',
       price: '₹24,500',
       originalPrice: '₹32,000',
-      tag: '🏙️ Modern Metropolis',
+      tag: 'Modern Metropolis',
       direct: true,
     },
     {
@@ -80,7 +80,7 @@ export const PopularDestinations: React.FC = () => {
       image: 'https://images.unsplash.com/photo-1570168007204-dfb528c6958f?auto=format&fit=crop&w=800&q=80',
       price: '₹3,499',
       originalPrice: '₹4,900',
-      tag: '🌊 Coastal City',
+      tag: 'Coastal City',
       direct: true,
     },
   ];
@@ -125,7 +125,6 @@ export const PopularDestinations: React.FC = () => {
                   : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
               }`}
             >
-              {cat.icon}
               <span>{cat.label}</span>
             </button>
           ))}

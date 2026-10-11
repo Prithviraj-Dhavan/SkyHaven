@@ -23,7 +23,7 @@ const fallbackDeals = [
   },
   {
     id: 'deal-2',
-    flightNumber: 'AM-108',
+    flightNumber: 'SH-108',
     airline: 'Vayu Jet',
     originCity: 'Bengaluru',
     originCode: 'BLR',
@@ -39,7 +39,7 @@ const fallbackDeals = [
   },
   {
     id: 'deal-3',
-    flightNumber: 'AM-112',
+    flightNumber: 'SH-112',
     airline: 'SkyLuxe International',
     originCity: 'New Delhi',
     originCode: 'DEL',
@@ -55,7 +55,7 @@ const fallbackDeals = [
   },
   {
     id: 'deal-4',
-    flightNumber: 'AM-116',
+    flightNumber: 'SH-116',
     airline: 'Apex Global',
     originCity: 'New Delhi',
     originCode: 'DEL',
