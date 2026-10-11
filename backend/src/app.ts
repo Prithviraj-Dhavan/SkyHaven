@@ -10,6 +10,7 @@ import { flightRoutes } from './modules/flights/flights.routes.js';
 import { bookingRoutes } from './modules/bookings/bookings.routes.js';
 import { aiRoutes } from './modules/ai/ai.routes.js';
 import { adminRoutes } from './modules/admin/admin.routes.js';
+import { feedbackRoutes } from './modules/feedback/feedback.routes.js';
 import { NotificationsService } from './modules/notifications/notifications.service.js';
 import { getSystemTelemetry } from './utils/systemInfo.js';
 
@@ -63,6 +64,7 @@ export function createApp() {
   app.use('/api/v1/bookings', bookingRoutes);
   app.use('/api/v1/ai', aiRoutes);
   app.use('/api/v1/admin', adminRoutes);
+  app.use('/api/v1/feedback', feedbackRoutes);
 
   // 404 Route Catch-All
   app.use('*', (req, res) => {
