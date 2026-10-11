@@ -32,25 +32,25 @@ export const RegisterPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-[80vh] flex items-center justify-center px-4 py-12">
-      <div className="w-full max-w-md space-y-6">
+    <div className="min-h-[80vh] flex items-center justify-center px-3 sm:px-4 py-8 sm:py-12">
+      <div className="w-full max-w-md space-y-5 sm:space-y-6">
         {/* Header */}
         <div className="text-center space-y-2">
-          <div className="w-14 h-14 rounded-2xl overflow-hidden shadow-lg shadow-[#0062E3]/25 mx-auto bg-white dark:bg-[#02122c] p-1 border border-slate-200 dark:border-white/15 flex items-center justify-center">
+          <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl overflow-hidden shadow-lg shadow-[#0062E3]/25 mx-auto bg-white dark:bg-[#02122c] p-1 border border-slate-200 dark:border-white/15 flex items-center justify-center">
             <img
               src="/images/skyhaven-logo.png"
               alt="SkyHaven Logo"
               className="w-full h-full object-cover rounded-xl"
             />
           </div>
-          <h1 className="text-2xl sm:text-3xl font-black font-display text-slate-900 dark:text-white">
+          <h1 className="text-xl sm:text-3xl font-black font-display text-slate-900 dark:text-white">
             Join SkyHaven
           </h1>
           <p className="text-xs text-slate-500">Create your account for instant flight bookings & seat maps.</p>
         </div>
 
         {/* Form Card */}
-        <Card className="p-6 sm:p-8 border-slate-200 dark:border-slate-800 shadow-xl">
+        <Card className="p-5 sm:p-8 rounded-2xl sm:rounded-3xl border-slate-200 dark:border-slate-800 shadow-xl">
           {error && (
             <div className="mb-4 p-3.5 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-600 dark:text-rose-400 text-xs font-medium">
               {error}

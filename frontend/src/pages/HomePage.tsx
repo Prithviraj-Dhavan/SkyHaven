@@ -11,14 +11,14 @@ export const HomePage: React.FC = () => {
     <div className="relative overflow-hidden pb-16">
       {/* Top Hero with Scenic Cinematic Aviation Wallpaper flowing under transparent navbar */}
       <div 
-        className="relative pt-26 sm:pt-28 lg:pt-32 pb-14 sm:pb-16 px-4 sm:px-6 lg:px-8 bg-cover bg-center bg-no-repeat transition-all duration-300 shadow-md"
+        className="relative pt-28 sm:pt-32 lg:pt-36 pb-12 sm:pb-16 px-3.5 sm:px-6 lg:px-8 bg-cover bg-center bg-no-repeat transition-all duration-300 shadow-md"
         style={{ backgroundImage: `url('/images/hero-bg.jpg')` }}
       >
         {/* Scenic Gradient Scrim Overlay for high-contrast readability and visible aircraft wallpaper in dark mode */}
         <div className="absolute inset-0 bg-gradient-to-b from-black/55 via-black/35 to-slate-950/75 dark:from-black/40 dark:via-[#02122c]/35 dark:to-[#02122c]/70 pointer-events-none" />
 
-        <div className="max-w-4xl mx-auto text-center mb-5 sm:mb-7 space-y-2 relative z-10">
-          <h1 className="text-2xl sm:text-4xl lg:text-4xl font-black font-display tracking-tight text-white leading-tight drop-shadow-md">
+        <div className="max-w-4xl mx-auto text-center mb-5 sm:mb-7 space-y-2 relative z-10 px-2 sm:px-4">
+          <h1 className="text-2xl sm:text-4xl lg:text-5xl font-black font-display tracking-tight text-white leading-tight drop-shadow-md">
             Millions of cheap flights.{' '}
             <span className="text-[#00B2D6]">One simple search.</span>
           </h1>

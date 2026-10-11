@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { LayoutDashboard, Plane, Ticket, TrendingUp, ShieldAlert, BarChart3 } from 'lucide-react';
+import { LayoutDashboard, Plane, Ticket, TrendingUp, ShieldAlert, BarChart3, MessageSquare } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { api } from '../services/api';
 import { AdminStats as AdminStatsType } from '../types';
 import { AdminStats } from '../components/admin/AdminStats';
 import { FlightManager } from '../components/admin/FlightManager';
 import { BookingsTable } from '../components/admin/BookingsTable';
+import { FeedbackTable } from '../components/admin/FeedbackTable';
 import { Card } from '../components/ui/Card';
 import { Tabs } from '../components/ui/Tabs';
 import { Button } from '../components/ui/Button';
@@ -15,7 +16,7 @@ export const AdminDashboardPage: React.FC = () => {
   const navigate = useNavigate();
   const { user, isAdmin, isLoading: isAuthLoading } = useAuth();
 
-  const [activeTab, setActiveTab] = useState<'overview' | 'flights' | 'bookings'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'flights' | 'bookings' | 'feedback'>('overview');
   const [stats, setStats] = useState<AdminStatsType | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -68,19 +69,20 @@ export const AdminDashboardPage: React.FC = () => {
     { id: 'overview', label: 'Telemetry & KPIs', icon: <LayoutDashboard className="w-4 h-4" /> },
     { id: 'flights', label: 'Fleet Schedules (CRUD)', icon: <Plane className="w-4 h-4" /> },
     { id: 'bookings', label: 'Platform Bookings', icon: <Ticket className="w-4 h-4" /> },
+    { id: 'feedback', label: 'User Feedback', icon: <MessageSquare className="w-4 h-4" /> },
   ];
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+    <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-5 sm:py-8 space-y-6 sm:space-y-8">
       {/* Top Admin Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-6 sm:p-8 rounded-3xl bg-gradient-to-r from-indigo-950/40 via-slate-900 to-[#0c1322] border border-indigo-500/30 shadow-xl">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 sm:p-8 rounded-2xl sm:rounded-3xl bg-gradient-to-r from-indigo-950/40 via-slate-900 to-[#0c1322] border border-indigo-500/30 shadow-xl">
         <div>
           <div className="flex items-center gap-2">
             <span className="px-2.5 py-0.5 rounded-full bg-indigo-500/20 text-indigo-400 border border-indigo-500/30 text-[10px] font-mono uppercase font-bold">
               Root Console
             </span>
           </div>
-          <h1 className="text-2xl sm:text-3xl font-black font-display text-white mt-1">
+          <h1 className="text-xl sm:text-3xl font-black font-display text-white mt-1">
             SkyHaven Operations & Management
           </h1>
           <p className="text-xs text-slate-400 mt-0.5">
@@ -89,7 +91,9 @@ export const AdminDashboardPage: React.FC = () => {
         </div>
 
         {/* Tab switcher */}
-        <Tabs tabs={tabs} activeTab={activeTab} onChange={(id: string) => setActiveTab(id as any)} />
+        <div className="w-full sm:w-auto overflow-x-auto no-scrollbar">
+          <Tabs tabs={tabs} activeTab={activeTab} onChange={(id: string) => setActiveTab(id as any)} />
+        </div>
       </div>
 
       {/* Overview Tab Content */}
@@ -179,6 +183,9 @@ export const AdminDashboardPage: React.FC = () => {
 
       {/* Platform Bookings Tab Content */}
       {activeTab === 'bookings' && <BookingsTable />}
+
+      {/* User Feedback Tab Content */}
+      {activeTab === 'feedback' && <FeedbackTable />}
     </div>
   );
 };

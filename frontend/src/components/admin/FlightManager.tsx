@@ -62,7 +62,7 @@ export const FlightManager: React.FC = () => {
     setIsSubmitting(true);
     try {
       const res = await api.createFlight({
-        flight_number: flightNumber || `AM-${Math.floor(100 + Math.random() * 900)}`,
+        flight_number: flightNumber || `SH-${Math.floor(100 + Math.random() * 900)}`,
         airline,
         origin_airport_id: originAirportId,
         destination_airport_id: destAirportId,
@@ -86,13 +86,20 @@ export const FlightManager: React.FC = () => {
     }
   };
 
-  const handleDelete = async (id: string) => {
-    if (!window.confirm('Are you sure you want to delete this scheduled flight?')) return;
+  const [flightToDelete, setFlightToDelete] = useState<string | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  const confirmDeleteFlight = async () => {
+    if (!flightToDelete) return;
+    setIsDeleting(true);
     try {
-      await api.deleteFlight(id);
+      await api.deleteFlight(flightToDelete);
+      setFlightToDelete(null);
       loadFlights();
     } catch (e: any) {
-      alert(e.message || 'Delete failed');
+      console.error(e.message || 'Delete failed');
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -169,7 +176,7 @@ export const FlightManager: React.FC = () => {
                   </td>
                   <td className="p-4 text-right">
                     <button
-                      onClick={() => handleDelete(f.id)}
+                      onClick={() => setFlightToDelete(f.id)}
                       className="p-1.5 text-rose-500 hover:bg-rose-500/10 rounded-lg transition-colors cursor-pointer"
                       title="Delete Flight"
                     >
@@ -191,10 +198,10 @@ export const FlightManager: React.FC = () => {
         subtitle="Generates flight schedule and automatically provisions 72-seat multi-cabin grid."
       >
         <form onSubmit={handleCreateFlight} className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <Input
               label="Flight Number"
-              placeholder="e.g. AM-204"
+              placeholder="e.g. SH-204"
               value={flightNumber}
               onChange={(e) => setFlightNumber(e.target.value)}
               required
@@ -208,7 +215,7 @@ export const FlightManager: React.FC = () => {
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <Select
               label="Origin Hub"
               value={originAirportId}
@@ -238,7 +245,7 @@ export const FlightManager: React.FC = () => {
             </Select>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <Input
               label="Departure Time"
               type="datetime-local"
@@ -255,7 +262,7 @@ export const FlightManager: React.FC = () => {
             />
           </div>
 
-          <div className="grid grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <Input
               label="Base Price (₹)"
               type="number"
@@ -278,7 +285,7 @@ export const FlightManager: React.FC = () => {
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <Input
               label="Assigned Gate"
               value={gate}
@@ -301,6 +308,35 @@ export const FlightManager: React.FC = () => {
             Provision & Publish Flight Schedule
           </Button>
         </form>
+      </Modal>
+
+      {/* Sleek Custom Delete Confirmation Modal */}
+      <Modal
+        isOpen={!!flightToDelete}
+        onClose={() => setFlightToDelete(null)}
+        title="Delete Flight Schedule"
+      >
+        <div className="space-y-4">
+          <p className="text-sm text-slate-600 dark:text-slate-300">
+            Are you sure you want to permanently remove this scheduled flight? Active passenger holds and cabin assignments for this flight will be terminated.
+          </p>
+          <div className="flex items-center justify-end gap-3 pt-3">
+            <Button
+              variant="outline"
+              onClick={() => setFlightToDelete(null)}
+              disabled={isDeleting}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="danger"
+              onClick={confirmDeleteFlight}
+              isLoading={isDeleting}
+            >
+              Confirm Delete
+            </Button>
+          </div>
+        </div>
       </Modal>
     </div>
   );

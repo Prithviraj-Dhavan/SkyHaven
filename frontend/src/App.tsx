@@ -9,6 +9,7 @@ import { SearchResultsPage } from './pages/SearchResultsPage';
 import { FlightDetailsPage } from './pages/FlightDetailsPage';
 import { CheckoutPage } from './pages/CheckoutPage';
 import { ConfirmationPage } from './pages/ConfirmationPage';
+import { MyBookingsPage } from './pages/MyBookingsPage';
 
 import { AdminDashboardPage } from './pages/AdminDashboardPage';
 import { LoginPage } from './pages/LoginPage';
@@ -37,6 +38,7 @@ export const App: React.FC = () => {
                 <Route path="flights/:id" element={<FlightDetailsPage />} />
                 <Route path="checkout" element={<CheckoutPage />} />
                 <Route path="confirmation" element={<ConfirmationPage />} />
+                <Route path="my-bookings" element={<MyBookingsPage />} />
 
                 <Route path="admin" element={<AdminDashboardPage />} />
                 <Route path="login" element={<LoginPage />} />

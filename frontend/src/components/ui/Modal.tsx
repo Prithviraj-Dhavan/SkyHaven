@@ -46,7 +46,7 @@ export const Modal: React.FC<ModalProps> = ({
   return (
     <AnimatePresence>
       {isOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 overflow-y-auto">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 overflow-y-auto">
           {/* Backdrop */}
           <motion.div
             initial={{ opacity: 0 }}
@@ -63,14 +63,14 @@ export const Modal: React.FC<ModalProps> = ({
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 15 }}
             transition={{ type: 'spring', damping: 25, stiffness: 350 }}
-            className={`relative w-full ${maxWStyles[maxWidth]} bg-white dark:bg-[#05203C] border border-slate-200 dark:border-slate-800 rounded-3xl shadow-2xl overflow-hidden z-10 my-8`}
+            className={`relative w-full ${maxWStyles[maxWidth]} bg-white dark:bg-[#05203C] border border-slate-200 dark:border-slate-800 rounded-2xl sm:rounded-3xl shadow-2xl overflow-hidden z-10 my-auto sm:my-8`}
           >
             {/* Header */}
             {(title || subtitle) && (
-              <div className="flex items-start justify-between p-6 border-b border-slate-100 dark:border-slate-800/80">
+              <div className="flex items-start justify-between p-4 sm:p-6 border-b border-slate-100 dark:border-slate-800/80">
                 <div>
                   {title && (
-                    <h3 className="text-lg font-bold text-slate-900 dark:text-white font-display">
+                    <h3 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white font-display">
                       {title}
                     </h3>
                   )}
@@ -90,7 +90,7 @@ export const Modal: React.FC<ModalProps> = ({
             )}
 
             {/* Content Body */}
-            <div className="p-6 max-h-[80vh] overflow-y-auto">{children}</div>
+            <div className="p-4 sm:p-6 max-h-[85vh] overflow-y-auto">{children}</div>
           </motion.div>
         </div>
       )}

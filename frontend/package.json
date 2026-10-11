@@ -10,6 +10,8 @@
     "test": "vitest run"
   },
   "dependencies": {
+    "@stripe/react-stripe-js": "^6.12.0",
+    "@stripe/stripe-js": "^9.17.0",
     "@tanstack/react-query": "^5.67.1",
     "canvas-confetti": "^1.9.4",
     "clsx": "^2.1.1",
