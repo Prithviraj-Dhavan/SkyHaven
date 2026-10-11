@@ -2,7 +2,8 @@ const API_BASE = '/api/v1';
 
 class ApiClient {
   private getToken(): string | null {
-    return localStorage.getItem('skyhaven_token');
+    if (typeof window === 'undefined') return null;
+    return sessionStorage.getItem('skyhaven_token') || localStorage.getItem('skyhaven_token');
   }
 
   private async request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
@@ -73,6 +74,49 @@ class ApiClient {
     return this.request<{ success: boolean; data: any[] }>('/flights/deals');
   }
 
+  // Seat holds
+  async holdSeats(body: { seatIds: string[] }) {
+    return this.request<{ success: boolean; data: { expiresAt: string } }>('/bookings/hold-seats', {
+      method: 'POST',
+      body: JSON.stringify(body),
+    });
+  }
+
+  async releaseHold(body?: { seatIds?: string[] }) {
+    return this.request<{ success: boolean; data: { message: string } }>('/bookings/release-hold', {
+      method: 'POST',
+      body: JSON.stringify(body || {}),
+    });
+  }
+
+  async getActiveHold() {
+    return this.request<{
+      success: boolean;
+      data: {
+        hasActiveHold: boolean;
+        hold: {
+          flight: any;
+          seats: any[];
+          seatIds: string[];
+          seatNumbers: string[];
+          expiresAt: string;
+          totalAmount: number;
+        } | null;
+      };
+    }>('/bookings/active-hold');
+  }
+
+  // Payments
+  async createPaymentIntent(body: { amount: number; currency?: string }) {
+    return this.request<{ success: boolean; data: { clientSecret: string; paymentIntentId: string } }>(
+      '/bookings/create-payment-intent',
+      {
+        method: 'POST',
+        body: JSON.stringify(body),
+      }
+    );
+  }
+
   // Bookings
   async createBooking(body: any) {
     return this.request<{ success: boolean; data: any }>('/bookings', {
@@ -99,6 +143,10 @@ class ApiClient {
     return this.request<{ success: boolean; data: any }>(`/bookings/tickets/${ticketNumber}`);
   }
 
+  async getUserBookings() {
+    return this.request<{ success: boolean; data: any[] }>('/bookings/my');
+  }
+
   // AI Assistant
   async parseAiQuery(prompt: string) {
     return this.request<{ success: boolean; data: any }>('/ai/parse', {
@@ -110,6 +158,17 @@ class ApiClient {
   // Admin
   async getAdminStats() {
     return this.request<{ success: boolean; data: any }>('/admin/stats');
+  }
+
+  async getAdminFeedback() {
+    return this.request<{ success: boolean; data: any[] }>('/feedback');
+  }
+
+  async submitFeedback(body: { name: string; email: string; message: string; rating?: number }) {
+    return this.request<{ success: boolean; data: any }>('/feedback', {
+      method: 'POST',
+      body: JSON.stringify(body),
+    });
   }
 
   async getAdminFlights(page = 1, limit = 20) {
