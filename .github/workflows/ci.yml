@@ -11,6 +11,22 @@ jobs:
     name: Lint, Test & Build
     runs-on: ubuntu-latest
 
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: password
+          MYSQL_DATABASE: skyhaven
+        ports:
+          - 3306:3306
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=5
+
+    env:
+      NODE_ENV: test
+      DATABASE_URL: "mysql://root:password@127.0.0.1:3306/skyhaven"
+      JWT_SECRET: "ci_test_super_secret_jwt_key_2026_skyhaven"
+      AI_PROVIDER: "rule_engine"
+
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
@@ -26,6 +42,9 @@ jobs:
 
       - name: Generate Prisma Client
         run: npm run db:generate --workspace=backend
+
+      - name: Provision MySQL Test Schema
+        run: npx prisma db push --schema=backend/prisma/schema.prisma
 
       - name: Run Backend Unit & Integration Tests
         run: npm run test --workspace=backend

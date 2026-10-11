@@ -10,7 +10,7 @@ const envSchema = z.object({
   PORT: z.string().default('5000').transform(Number),
   NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
   CLIENT_URL: z.string().default('http://localhost:5173'),
-  DATABASE_URL: z.string().default('file:./dev.db'),
+  DATABASE_URL: z.string().default('mysql://root:SkyHaven@123@localhost:3306/skyhaven'),
   REDIS_URL: z.string().optional().default('redis://localhost:6379'),
   JWT_SECRET: z.string().default('skyhaven_super_secret_jwt_key_2026_modern_monolith'),
   JWT_EXPIRES_IN: z.string().default('7d'),
