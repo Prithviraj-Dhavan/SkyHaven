@@ -1,8 +1,11 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Plane, ShieldCheck, Sparkles, Globe, Heart, Compass } from 'lucide-react';
+import { FeedbackModal } from '../ui/FeedbackModal';
 
 export const Footer: React.FC = () => {
+  const [isFeedbackModalOpen, setIsFeedbackModalOpen] = useState(false);
+
   return (
     <footer className="bg-white dark:bg-[#02122c] text-slate-800 dark:text-white border-t border-slate-200 dark:border-[#0d3a66] mt-16 transition-colors duration-200 shadow-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-16">
@@ -90,7 +93,7 @@ export const Footer: React.FC = () => {
                 <Link to="/search" className="hover:text-[#0062E3] dark:hover:text-white transition-colors">Explore Everywhere</Link>
               </li>
               <li>
-                <span className="hover:text-[#0062E3] dark:hover:text-white transition-colors cursor-pointer">Flight Price Alerts</span>
+                <span onClick={() => setIsFeedbackModalOpen(true)} className="hover:text-[#0062E3] dark:hover:text-white transition-colors cursor-pointer">Give Feedback</span>
               </li>
               <li>
                 <Link to="/admin" className="hover:text-[#0062E3] dark:hover:text-white transition-colors">Partner & Fleet Portal</Link>
@@ -113,6 +116,7 @@ export const Footer: React.FC = () => {
           </div>
         </div>
       </div>
+      <FeedbackModal isOpen={isFeedbackModalOpen} onClose={() => setIsFeedbackModalOpen(false)} />
     </footer>
   );
 };
