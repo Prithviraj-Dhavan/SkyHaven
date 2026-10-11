@@ -16,7 +16,8 @@ export class FlightsController {
 
   public static async getById(req: Request, res: Response, next: NextFunction) {
     try {
-      const flight = await FlightsService.getFlightById(req.params.id);
+      const currentUserId = req.user?.id;
+      const flight = await FlightsService.getFlightById(req.params.id, currentUserId);
       res.status(200).json({
         success: true,
         data: flight,
