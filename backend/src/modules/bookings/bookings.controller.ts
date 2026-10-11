@@ -1,9 +1,55 @@
 import { Request, Response, NextFunction } from 'express';
 import { BookingsService } from './bookings.service.js';
+import { PaymentService } from './payment.service.js';
 import { prisma } from '../../config/database.js';
 import { AppError } from '../../middleware/error.middleware.js';
 
 export class BookingsController {
+  public static async holdSeats(req: Request, res: Response, next: NextFunction) {
+    try {
+      const userId = req.user!.id;
+      const { seatIds } = req.body;
+      const result = await BookingsService.holdSeats(userId, seatIds);
+      res.status(200).json({ success: true, data: result });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  public static async releaseHold(req: Request, res: Response, next: NextFunction) {
+    try {
+      const userId = req.user!.id;
+      const { seatIds } = req.body;
+      const result = await BookingsService.releaseHold(userId, seatIds);
+      res.status(200).json({ success: true, data: result });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  public static async getActiveHold(req: Request, res: Response, next: NextFunction) {
+    try {
+      const userId = req.user!.id;
+      const result = await BookingsService.getActiveHold(userId);
+      res.status(200).json({ success: true, data: result });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  public static async createPaymentIntent(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { amount, currency } = req.body;
+      const result = await PaymentService.createPaymentIntent({ amount, currency });
+      res.status(200).json({
+        success: true,
+        data: result,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
   public static async create(req: Request, res: Response, next: NextFunction) {
     try {
       const userId = req.user!.id;
