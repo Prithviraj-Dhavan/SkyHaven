@@ -25,7 +25,16 @@ export class AiService {
       }
     }
 
-    // 3. Resilient Standalone NLP Rule & Regex Parser
+    // 3. If provider is set to Groq and key is available
+    if (env.AI_PROVIDER === 'groq' && env.GROQ_API_KEY) {
+      try {
+        return await this.callGroq(prompt);
+      } catch (err: any) {
+        console.warn('⚠️ Groq API call failed, falling back to smart rule-based NLP parser:', err.message);
+      }
+    }
+
+    // 4. Resilient Standalone NLP Rule & Regex Parser
     return parseNaturalLanguageFlightQuery(prompt);
   }
 
@@ -102,5 +111,48 @@ export class AiService {
     const data: any = await response.json();
     const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
     return JSON.parse(text);
+  }
+
+  private static async callGroq(prompt: string): Promise<ParsedFlightQuery> {
+    const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${env.GROQ_API_KEY}`,
+      },
+      body: JSON.stringify({
+        model: 'llama3-70b-8192',
+        messages: [
+          {
+            role: 'system',
+            content: `You are SkyHaven AI Flight Search Assistant. Parse the user flight query into strict JSON:
+{
+  "origin": string (IATA 3-letter airport code or city name, e.g. "DEL", "BOM", "JFK", "LHR", "GOI"),
+  "originName": string,
+  "destination": string (IATA code or city),
+  "destName": string,
+  "departureDate": string (YYYY-MM-DD),
+  "returnDate": string or null,
+  "passengers": number,
+  "cabinClass": "ECONOMY" | "PREMIUM_ECONOMY" | "BUSINESS" | "FIRST",
+  "maxPrice": number or null,
+  "explanation": string (friendly single sentence summary),
+  "isRoundTrip": boolean
+}`
+          },
+          { role: 'user', content: prompt },
+        ],
+        response_format: { type: 'json_object' },
+        temperature: 0.1,
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error(`Groq HTTP ${response.status}: ${await response.text()}`);
+    }
+
+    const data: any = await response.json();
+    const content = data.choices?.[0]?.message?.content;
+    return JSON.parse(content);
   }
 }
