@@ -137,25 +137,25 @@ export const FlightDatePicker: React.FC<FlightDatePickerProps> = ({
 
   const modalContent = (
     <div 
-      className="fixed inset-0 z-[99999] flex items-center justify-center p-4 bg-black/75 backdrop-blur-md animate-in fade-in duration-200"
+      className="fixed inset-0 z-[99999] flex items-center justify-center p-2.5 sm:p-4 bg-black/75 backdrop-blur-md overflow-y-auto animate-in fade-in duration-200"
       onClick={onClose}
     >
       <div 
-        className="w-full max-w-lg bg-white dark:bg-[#05203C] text-slate-900 dark:text-white rounded-3xl shadow-2xl border border-slate-200 dark:border-slate-800 overflow-hidden relative z-10"
+        className="w-full max-w-lg bg-white dark:bg-[#05203C] text-slate-900 dark:text-white rounded-2xl sm:rounded-3xl shadow-2xl border border-slate-200 dark:border-slate-800 overflow-hidden relative z-10 my-auto sm:my-8"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Modal Top Header */}
-        <div className="flex items-center justify-between p-5 border-b border-slate-100 dark:border-slate-800">
+        <div className="flex items-center justify-between p-3.5 sm:p-5 border-b border-slate-100 dark:border-slate-800">
           <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-xl bg-blue-50 dark:bg-white/10 flex items-center justify-center text-[#0062E3] dark:text-[#00B2D6]">
-              <CalendarIcon className="w-5 h-5" />
+            <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-blue-50 dark:bg-white/10 flex items-center justify-center text-[#0062E3] dark:text-[#00B2D6] shrink-0">
+              <CalendarIcon className="w-4 h-4 sm:w-5 sm:h-5" />
             </div>
             <div>
-              <h3 className="text-base font-black font-display text-slate-900 dark:text-white">
+              <h3 className="text-sm sm:text-base font-black font-display text-slate-900 dark:text-white leading-tight">
                 Select Flight Travel Dates
               </h3>
-              <p className="text-xs text-slate-500 dark:text-slate-400">
-                Pick your departure date with live estimated lowest fares
+              <p className="text-[11px] sm:text-xs text-slate-500 dark:text-slate-400">
+                Pick departure date with live lowest fares
               </p>
             </div>
           </div>
@@ -163,41 +163,41 @@ export const FlightDatePicker: React.FC<FlightDatePickerProps> = ({
           <button
             type="button"
             onClick={onClose}
-            className="p-2 rounded-xl text-slate-400 hover:text-slate-600 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+            className="p-1.5 sm:p-2 rounded-xl text-slate-400 hover:text-slate-600 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer shrink-0"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
         {/* Quick Date Presets Bar */}
-        <div className="px-5 pt-3.5 flex flex-wrap gap-2 text-xs">
+        <div className="px-3.5 sm:px-5 pt-3 sm:pt-3.5 flex flex-wrap gap-1.5 sm:gap-2 text-xs">
           <button
             type="button"
             onClick={() => setPreset(0)}
             className="px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-white/10 dark:hover:bg-white/20 text-slate-700 dark:text-slate-300 font-bold transition-all cursor-pointer font-display"
           >
-            ⚡ Today
+            Today
           </button>
           <button
             type="button"
             onClick={() => setPreset(1)}
             className="px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-white/10 dark:hover:bg-white/20 text-slate-700 dark:text-slate-300 font-bold transition-all cursor-pointer font-display"
           >
-            ⚡ Tomorrow
+            Tomorrow
           </button>
           <button
             type="button"
             onClick={() => setPreset(3)}
             className="px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-white/10 dark:hover:bg-white/20 text-slate-700 dark:text-slate-300 font-bold transition-all cursor-pointer font-display"
           >
-            🏖️ This Weekend
+            This Weekend
           </button>
           <button
             type="button"
             onClick={() => setPreset(7)}
             className="px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-white/10 dark:hover:bg-white/20 text-slate-700 dark:text-slate-300 font-bold transition-all cursor-pointer font-display"
           >
-            📅 Next Week
+            Next Week
           </button>
         </div>
 
@@ -232,24 +232,24 @@ export const FlightDatePicker: React.FC<FlightDatePickerProps> = ({
         )}
 
         {/* Calendar Grid Container */}
-        <div className="p-5 space-y-3">
+        <div className="p-3.5 sm:p-5 space-y-2.5 sm:space-y-3">
           {/* Month Header Navigation */}
           <div className="flex items-center justify-between">
-            <h4 className="text-base font-black font-display text-slate-900 dark:text-white">
+            <h4 className="text-sm sm:text-base font-black font-display text-slate-900 dark:text-white">
               {monthNames[currentMonth]} {currentYear}
             </h4>
             <div className="flex items-center gap-1">
               <button
                 type="button"
                 onClick={handlePrevMonth}
-                className="p-2 rounded-xl border border-slate-200 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+                className="p-1.5 sm:p-2 rounded-xl border border-slate-200 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
               >
                 <ChevronLeft className="w-4 h-4" />
               </button>
               <button
                 type="button"
                 onClick={handleNextMonth}
-                className="p-2 rounded-xl border border-slate-200 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+                className="p-1.5 sm:p-2 rounded-xl border border-slate-200 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
               >
                 <ChevronRight className="w-4 h-4" />
               </button>
@@ -257,7 +257,7 @@ export const FlightDatePicker: React.FC<FlightDatePickerProps> = ({
           </div>
 
           {/* Weekday Column Headers (Mon - Sun) */}
-          <div className="grid grid-cols-7 gap-1 text-center text-xs font-mono font-bold text-slate-400 dark:text-slate-500">
+          <div className="grid grid-cols-7 gap-1 text-center text-[11px] sm:text-xs font-mono font-bold text-slate-400 dark:text-slate-500">
             <div>Mo</div>
             <div>Tu</div>
             <div>We</div>
@@ -271,7 +271,7 @@ export const FlightDatePicker: React.FC<FlightDatePickerProps> = ({
           <div className="grid grid-cols-7 gap-1">
             {/* Blank padding days for start of month */}
             {Array.from({ length: firstDayIndex }).map((_, i) => (
-              <div key={`blank-${i}`} className="h-12" />
+              <div key={`blank-${i}`} className="h-10 sm:h-12" />
             ))}
 
             {/* Days of current month */}
@@ -296,7 +296,7 @@ export const FlightDatePicker: React.FC<FlightDatePickerProps> = ({
                   type="button"
                   disabled={isPast}
                   onClick={() => handleDateClick(day)}
-                  className={`h-12 rounded-xl flex flex-col items-center justify-center p-0.5 text-xs transition-all relative cursor-pointer ${
+                  className={`h-10 sm:h-12 rounded-lg sm:rounded-xl flex flex-col items-center justify-center p-0.5 text-xs transition-all relative cursor-pointer ${
                     isPast
                       ? 'text-slate-300 dark:text-slate-700 cursor-not-allowed opacity-40'
                       : isSelectedDep || isSelectedRet
@@ -306,10 +306,10 @@ export const FlightDatePicker: React.FC<FlightDatePickerProps> = ({
                       : 'hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-800 dark:text-slate-200 border border-transparent hover:border-slate-300'
                   }`}
                 >
-                  <span className="font-bold text-xs leading-none">{day}</span>
+                  <span className="font-bold text-[11px] sm:text-xs leading-none">{day}</span>
                   {!isPast && (
                     <span
-                      className={`text-[9px] font-mono leading-none mt-1 ${
+                      className={`text-[8px] sm:text-[9px] font-mono leading-none mt-0.5 ${
                         isSelectedDep || isSelectedRet
                           ? 'text-white'
                           : isCheapest
@@ -327,7 +327,7 @@ export const FlightDatePicker: React.FC<FlightDatePickerProps> = ({
         </div>
 
         {/* Modal Bottom Actions */}
-        <div className="p-4 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between bg-slate-50 dark:bg-[#02122c]/50">
+        <div className="p-3.5 sm:p-4 border-t border-slate-100 dark:border-slate-800 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 bg-slate-50 dark:bg-[#02122c]/50">
           <div className="text-xs">
             <span className="text-slate-500 dark:text-slate-400 font-medium">Selected: </span>
             <strong className="font-bold font-display text-[#0062E3] dark:text-[#00B2D6]">
@@ -335,18 +335,18 @@ export const FlightDatePicker: React.FC<FlightDatePickerProps> = ({
             </strong>
           </div>
 
-          <div className="flex gap-2 font-display">
+          <div className="flex items-center gap-2 font-display">
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 rounded-xl text-xs font-bold text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+              className="flex-1 sm:flex-initial px-4 py-2 rounded-xl text-xs font-bold text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors cursor-pointer text-center"
             >
               Cancel
             </button>
             <button
               type="button"
               onClick={handleApply}
-              className="px-6 py-2.5 rounded-xl bg-[#0062E3] hover:bg-[#0051c7] text-white text-xs font-black tracking-wide shadow-sky transition-all cursor-pointer flex items-center gap-1.5"
+              className="flex-1 sm:flex-initial px-5 sm:px-6 py-2.5 rounded-xl bg-[#0062E3] hover:bg-[#0051c7] text-white text-xs font-black tracking-wide shadow-sky transition-all cursor-pointer flex items-center justify-center gap-1.5"
             >
               <span>Confirm Date</span>
               <ArrowRight className="w-3.5 h-3.5" />

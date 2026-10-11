@@ -33,7 +33,6 @@ import { CabinClass } from '../../types';
 import { api } from '../../services/api';
 import { FlightDatePicker } from '../ui/FlightDatePicker';
 
-type SpecialFare = 'REGULAR' | 'STUDENT' | 'ARMED_FORCES' | 'SENIOR_CITIZEN' | 'DOCTORS_NURSES';
 type FlightMode = 'SEARCH' | 'EVERYWHERE' | 'DIRECT' | 'PREMIUM' | 'CALENDAR' | 'STATUS';
 
 interface MultiCityLeg {
@@ -52,7 +51,6 @@ export const HeroSearch: React.FC = () => {
   const { searchParams, setSearchParams, setAiDrawerOpen } = useBookingStore();
 
   const [flightMode, setFlightMode] = useState<FlightMode>('SEARCH');
-  const [specialFare, setSpecialFare] = useState<SpecialFare>('REGULAR');
 
   const [airports, setAirports] = useState<any[]>([]);
   const [isOriginOpen, setIsOriginOpen] = useState(false);
@@ -255,19 +253,11 @@ export const HeroSearch: React.FC = () => {
   const retBreakdown = searchParams.returnDate ? getDateBreakdown(searchParams.returnDate) : null;
 
   const flightCategories = [
-    { id: 'SEARCH', label: 'Flights', icon: <Plane className="w-4 h-4" /> },
-    { id: 'EVERYWHERE', label: 'Explore Everywhere', icon: <Compass className="w-4 h-4" /> },
-    { id: 'DIRECT', label: 'Direct Flights', icon: <Zap className="w-4 h-4" /> },
-    { id: 'PREMIUM', label: 'Business & First', icon: <Crown className="w-4 h-4" /> },
-    { id: 'CALENDAR', label: 'Low Fare Calendar', icon: <CalendarIcon className="w-4 h-4" /> },
-  ];
-
-  const specialFareOptions = [
-    { id: 'REGULAR', label: 'Regular Fares', desc: 'Best standard prices', icon: <Tag className="w-3.5 h-3.5" /> },
-    { id: 'STUDENT', label: 'Student', desc: 'Extra 10kg baggage + 10% off', icon: <GraduationCap className="w-3.5 h-3.5" /> },
-    { id: 'ARMED_FORCES', label: 'Armed Forces', desc: 'Up to ₹600 off', icon: <Award className="w-3.5 h-3.5" /> },
-    { id: 'SENIOR_CITIZEN', label: 'Senior Citizen', desc: 'Up to ₹600 off', icon: <UserCheck className="w-3.5 h-3.5" /> },
-    { id: 'DOCTORS_NURSES', label: 'Doctors & Nurses', desc: 'Special care fare', icon: <HeartPulse className="w-3.5 h-3.5" /> },
+    { id: 'SEARCH', label: 'Flights' },
+    { id: 'EVERYWHERE', label: 'Explore Everywhere' },
+    { id: 'DIRECT', label: 'Direct Flights' },
+    { id: 'PREMIUM', label: 'Business & First' },
+    { id: 'CALENDAR', label: 'Low Fare Calendar' },
   ];
 
   const isRoundTrip = searchParams.tripType === 'round-trip';
@@ -277,20 +267,19 @@ export const HeroSearch: React.FC = () => {
     <div className="w-full max-w-5xl mx-auto space-y-2.5">
       
       {/* 1. Floating Flight Intelligence Pill Bar */}
-      <div className="flex justify-center -mb-4 relative z-30 overflow-x-auto no-scrollbar px-2">
-        <div className="inline-flex items-center gap-1.5 p-1.5 rounded-2xl bg-white/95 dark:bg-[#05203C]/95 backdrop-blur-xl border border-slate-200/90 dark:border-white/20 shadow-xl">
+      <div className="flex justify-start sm:justify-center -mb-3 sm:-mb-4 relative z-30 overflow-x-auto no-scrollbar px-2">
+        <div className="inline-flex items-center gap-1 sm:gap-1.5 p-1 sm:p-1.5 rounded-xl sm:rounded-2xl bg-white/95 dark:bg-[#05203C]/95 backdrop-blur-xl border border-slate-200/90 dark:border-white/20 shadow-xl shrink-0">
           {flightCategories.map((cat) => (
             <button
               key={cat.id}
               type="button"
               onClick={() => handleFlightModeClick(cat.id as FlightMode)}
-              className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer font-display whitespace-nowrap ${
+              className={`flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3.5 py-1.5 sm:py-2 rounded-lg sm:rounded-xl text-[11px] sm:text-xs font-bold transition-all cursor-pointer font-display whitespace-nowrap ${
                 flightMode === cat.id
                   ? 'bg-[#0062E3] text-white shadow-sky'
                   : 'text-slate-700 dark:text-slate-300 hover:text-[#0062E3] hover:bg-slate-100 dark:hover:bg-white/10'
               }`}
             >
-              {cat.icon}
               <span>{cat.label}</span>
             </button>
           ))}
@@ -298,12 +287,12 @@ export const HeroSearch: React.FC = () => {
       </div>
 
       {/* 2. Main Elevated Search Box Card */}
-      <div className="w-full bg-white dark:bg-[#05203C] text-slate-900 dark:text-white rounded-3xl p-5 sm:p-6 shadow-2xl border border-slate-200 dark:border-white/15 space-y-5 transition-colors duration-200 relative z-20">
+      <div className="w-full bg-white dark:bg-[#05203C] text-slate-900 dark:text-white rounded-2xl sm:rounded-3xl p-3.5 sm:p-6 shadow-2xl border border-slate-200 dark:border-white/15 space-y-4 sm:space-y-5 transition-colors duration-200 relative z-20">
         
         {/* Top Control Strip */}
-        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 dark:border-white/10 pb-4 pt-1">
+        <div className="flex items-center justify-between gap-2 border-b border-slate-100 dark:border-white/10 pb-3 sm:pb-4 pt-1">
           {/* Trip Type Radio Pills */}
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5 sm:gap-2 overflow-x-auto no-scrollbar py-0.5 max-w-full">
             {[
               { id: 'round-trip', label: 'Round Trip' },
               { id: 'one-way', label: 'One Way' },
@@ -313,14 +302,14 @@ export const HeroSearch: React.FC = () => {
                 key={type.id}
                 type="button"
                 onClick={() => handleTripTypeChange(type.id as any)}
-                className={`px-4 py-1.5 rounded-full text-xs font-black transition-all flex items-center gap-2 cursor-pointer font-display ${
+                className={`px-2.5 sm:px-4 py-1 sm:py-1.5 rounded-full text-[11px] sm:text-xs font-black transition-all flex items-center gap-1.5 sm:gap-2 cursor-pointer font-display whitespace-nowrap shrink-0 ${
                   searchParams.tripType === type.id
                     ? 'bg-[#0062E3] text-white shadow-xs'
                     : 'text-slate-600 hover:text-slate-900 dark:text-slate-300 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/10'
                 }`}
               >
                 <span
-                  className={`w-2.5 h-2.5 rounded-full ${
+                  className={`w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full ${
                     searchParams.tripType === type.id ? 'bg-white' : 'bg-transparent border-2 border-slate-400 dark:border-slate-500'
                   }`}
                 />
@@ -329,8 +318,8 @@ export const HeroSearch: React.FC = () => {
             ))}
           </div>
 
-          {/* Quick Preferences & AI Trigger */}
-          <div className="flex items-center gap-4 text-xs font-bold">
+          {/* Quick Preferences & AI Trigger - visible on desktop, hidden on mobile */}
+          <div className="hidden sm:flex items-center gap-4 text-xs font-bold">
             <span className="text-slate-400 hidden md:inline font-mono">
               Book International & Domestic Flights
             </span>
@@ -434,13 +423,13 @@ export const HeroSearch: React.FC = () => {
         ) : (
           /* 5-BOX CONNECTED FLIGHT MATRIX (FROM, TO, DEPARTURE, RETURN, TRAVELLERS) */
           <form onSubmit={handleSearchSubmit} className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-2.5 bg-slate-50 dark:bg-[#071628] p-2.5 rounded-2xl border border-slate-200 dark:border-white/10 shadow-inner">
+            <div className="grid grid-cols-2 lg:grid-cols-5 gap-2 sm:gap-2.5 bg-slate-50 dark:bg-[#071628] p-2 sm:p-2.5 rounded-2xl border border-slate-200 dark:border-white/10 shadow-inner">
               
               {/* Box 1: FROM (Big Bold City Name) */}
-              <div className="relative" ref={originRef}>
+              <div className="col-span-2 lg:col-span-1 relative" ref={originRef}>
                 <div
                   onClick={() => setIsOriginOpen(true)}
-                  className="bg-white dark:bg-[#0c192e] rounded-xl p-3 sm:p-3.5 h-[96px] flex flex-col justify-between cursor-pointer border border-slate-200/80 dark:border-slate-800 hover:border-[#0062E3] dark:hover:border-[#00B2D6] transition-all text-slate-900 dark:text-white shadow-2xs group"
+                  className="bg-white dark:bg-[#0c192e] rounded-xl p-2.5 sm:p-3.5 h-[88px] sm:h-[96px] flex flex-col justify-between cursor-pointer border border-slate-200/80 dark:border-slate-800 hover:border-[#0062E3] dark:hover:border-[#00B2D6] transition-all text-slate-900 dark:text-white shadow-2xs group"
                 >
                   <div className="flex items-center justify-between text-xs font-bold text-slate-500 dark:text-slate-400">
                     <span className="flex items-center gap-1.5 uppercase font-mono tracking-wider text-[10px]">
@@ -515,10 +504,10 @@ export const HeroSearch: React.FC = () => {
               </div>
 
               {/* Box 2: TO (Big Bold Destination City Name) */}
-              <div className="relative" ref={destRef}>
+              <div className="col-span-2 lg:col-span-1 relative" ref={destRef}>
                 <div
                   onClick={() => setIsDestOpen(true)}
-                  className="bg-white dark:bg-[#0c192e] rounded-xl p-3 sm:p-3.5 h-[96px] flex flex-col justify-between cursor-pointer border border-slate-200/80 dark:border-slate-800 hover:border-[#0062E3] dark:hover:border-[#00B2D6] transition-all text-slate-900 dark:text-white shadow-2xs group"
+                  className="bg-white dark:bg-[#0c192e] rounded-xl p-2.5 sm:p-3.5 h-[88px] sm:h-[96px] flex flex-col justify-between cursor-pointer border border-slate-200/80 dark:border-slate-800 hover:border-[#0062E3] dark:hover:border-[#00B2D6] transition-all text-slate-900 dark:text-white shadow-2xs group"
                 >
                   <div className="flex items-center justify-between text-xs font-bold text-slate-500 dark:text-slate-400">
                     <span className="flex items-center gap-1.5 uppercase font-mono tracking-wider text-[10px]">
@@ -599,29 +588,29 @@ export const HeroSearch: React.FC = () => {
               </div>
 
               {/* Box 3: DEPARTURE (Date) */}
-              <div>
+              <div className="col-span-1">
                 <div
                   onClick={() => setIsDateModalOpen(true)}
-                  className="bg-white dark:bg-[#0c192e] rounded-xl p-3 sm:p-3.5 h-[96px] flex flex-col justify-between cursor-pointer border border-slate-200/80 dark:border-slate-800 hover:border-[#0062E3] dark:hover:border-[#00B2D6] transition-all text-slate-900 dark:text-white shadow-2xs group"
+                  className="bg-white dark:bg-[#0c192e] rounded-xl p-2.5 sm:p-3.5 h-[88px] sm:h-[96px] flex flex-col justify-between cursor-pointer border border-slate-200/80 dark:border-slate-800 hover:border-[#0062E3] dark:hover:border-[#00B2D6] transition-all text-slate-900 dark:text-white shadow-2xs group"
                 >
                   <div className="flex items-center justify-between text-xs font-bold text-slate-500 dark:text-slate-400">
-                    <span className="flex items-center gap-1.5 uppercase font-mono tracking-wider text-[10px]">
-                      <CalendarIcon className="w-3.5 h-3.5 text-[#0062E3]" />
-                      Departure
+                    <span className="flex items-center gap-1 sm:gap-1.5 uppercase font-mono tracking-wider text-[9px] sm:text-[10px]">
+                      <CalendarIcon className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-[#0062E3]" />
+                      Depart
                     </span>
                     <ChevronDown className="w-3 h-3 text-slate-400" />
                   </div>
 
                   <div>
-                    <div className="flex items-baseline gap-1.5 leading-none">
-                      <span className="text-xl sm:text-2xl font-black font-display text-slate-900 dark:text-white tracking-tight">
+                    <div className="flex items-baseline gap-1 sm:gap-1.5 leading-none">
+                      <span className="text-lg sm:text-2xl font-black font-display text-slate-900 dark:text-white tracking-tight">
                         {depBreakdown.dayNumber}
                       </span>
-                      <span className="text-xs font-black font-display text-slate-800 dark:text-slate-200">
+                      <span className="text-[11px] sm:text-xs font-black font-display text-slate-800 dark:text-slate-200 truncate">
                         {depBreakdown.monthYear}
                       </span>
                     </div>
-                    <div className="text-[10px] font-semibold text-slate-500 dark:text-slate-400 mt-0.5">
+                    <div className="text-[9px] sm:text-[10px] font-semibold text-slate-500 dark:text-slate-400 mt-0.5 truncate">
                       {depBreakdown.weekday}
                     </div>
                   </div>
@@ -629,7 +618,7 @@ export const HeroSearch: React.FC = () => {
               </div>
 
               {/* Box 4: RETURN DATE */}
-              <div>
+              <div className="col-span-1">
                 <div
                   onClick={() => {
                     if (!isRoundTrip) {
@@ -637,15 +626,15 @@ export const HeroSearch: React.FC = () => {
                     }
                     setIsDateModalOpen(true);
                   }}
-                  className={`rounded-xl p-3 sm:p-3.5 h-[96px] flex flex-col justify-between cursor-pointer transition-all shadow-2xs group border ${
+                  className={`rounded-xl p-2.5 sm:p-3.5 h-[88px] sm:h-[96px] flex flex-col justify-between cursor-pointer transition-all shadow-2xs group border ${
                     isRoundTrip && retBreakdown
                       ? 'bg-white dark:bg-[#0c192e] border-slate-200/80 dark:border-slate-800 hover:border-[#0062E3]'
                       : 'bg-blue-50/40 dark:bg-white/5 border-dashed border-blue-300 dark:border-white/20 hover:border-solid hover:border-[#0062E3]'
                   }`}
                 >
                   <div className="flex items-center justify-between text-xs font-bold text-slate-500 dark:text-slate-400">
-                    <span className="flex items-center gap-1.5 uppercase font-mono tracking-wider text-[10px]">
-                      <CalendarIcon className="w-3.5 h-3.5 text-[#0062E3]" />
+                    <span className="flex items-center gap-1 sm:gap-1.5 uppercase font-mono tracking-wider text-[9px] sm:text-[10px]">
+                      <CalendarIcon className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-[#0062E3]" />
                       Return
                     </span>
                     <ChevronDown className="w-3 h-3 text-slate-400" />
@@ -654,25 +643,25 @@ export const HeroSearch: React.FC = () => {
                   <div>
                     {isRoundTrip && retBreakdown ? (
                       <div>
-                        <div className="flex items-baseline gap-1.5 leading-none">
-                          <span className="text-xl sm:text-2xl font-black font-display text-slate-900 dark:text-white tracking-tight">
+                        <div className="flex items-baseline gap-1 sm:gap-1.5 leading-none">
+                          <span className="text-lg sm:text-2xl font-black font-display text-slate-900 dark:text-white tracking-tight">
                             {retBreakdown.dayNumber}
                           </span>
-                          <span className="text-xs font-black font-display text-slate-800 dark:text-slate-200">
+                          <span className="text-[11px] sm:text-xs font-black font-display text-slate-800 dark:text-slate-200 truncate">
                             {retBreakdown.monthYear}
                           </span>
                         </div>
-                        <div className="text-[10px] font-semibold text-slate-500 dark:text-slate-400 mt-0.5">
+                        <div className="text-[9px] sm:text-[10px] font-semibold text-slate-500 dark:text-slate-400 mt-0.5 truncate">
                           {retBreakdown.weekday}
                         </div>
                       </div>
                     ) : (
                       <div>
-                        <div className="text-xs font-black font-display text-[#0062E3] dark:text-[#00B2D6] leading-tight">
-                          + Add Return Date
+                        <div className="text-[11px] sm:text-xs font-black font-display text-[#0062E3] dark:text-[#00B2D6] leading-tight truncate">
+                          + Add Return
                         </div>
-                        <div className="text-[9px] font-medium text-slate-500 dark:text-slate-400 mt-0.5">
-                          Save extra on round-trips
+                        <div className="text-[8px] sm:text-[9px] font-medium text-slate-500 dark:text-slate-400 mt-0.5 truncate">
+                          Save on round-trips
                         </div>
                       </div>
                     )}
@@ -681,10 +670,10 @@ export const HeroSearch: React.FC = () => {
               </div>
 
               {/* Box 5: TRAVELLERS & CABIN CLASS */}
-              <div className="relative" ref={paxRef}>
+              <div className="col-span-2 lg:col-span-1 relative" ref={paxRef}>
                 <div
                   onClick={() => setIsPaxOpen(!isPaxOpen)}
-                  className="bg-white dark:bg-[#0c192e] rounded-xl p-3 sm:p-3.5 h-[96px] flex flex-col justify-between cursor-pointer border border-slate-200/80 dark:border-slate-800 hover:border-[#0062E3] dark:hover:border-[#00B2D6] transition-all text-slate-900 dark:text-white shadow-2xs group"
+                  className="bg-white dark:bg-[#0c192e] rounded-xl p-2.5 sm:p-3.5 h-[88px] sm:h-[96px] flex flex-col justify-between cursor-pointer border border-slate-200/80 dark:border-slate-800 hover:border-[#0062E3] dark:hover:border-[#00B2D6] transition-all text-slate-900 dark:text-white shadow-2xs group"
                 >
                   <div className="flex items-center justify-between text-xs font-bold text-slate-500 dark:text-slate-400">
                     <span className="flex items-center gap-1.5 uppercase font-mono tracking-wider text-[10px]">
@@ -696,7 +685,7 @@ export const HeroSearch: React.FC = () => {
 
                   <div>
                     <div className="flex items-baseline gap-1.5 leading-none truncate">
-                      <span className="text-xl sm:text-2xl font-black font-display text-slate-900 dark:text-white tracking-tight">
+                      <span className="text-lg sm:text-2xl font-black font-display text-slate-900 dark:text-white tracking-tight">
                         {totalPassengers}
                       </span>
                       <span className="text-xs font-black font-display text-slate-800 dark:text-slate-200">
@@ -711,7 +700,7 @@ export const HeroSearch: React.FC = () => {
 
                 {/* Passenger Selector Popover */}
                 {isPaxOpen && (
-                  <div className="absolute top-full right-0 w-[300px] mt-2 bg-white dark:bg-[#071628] border border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xl z-50 p-4 space-y-4 text-slate-900 dark:text-white animate-in fade-in duration-150">
+                  <div className="absolute top-full left-0 right-0 sm:left-auto sm:right-0 sm:w-[300px] mt-2 bg-white dark:bg-[#071628] border border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xl z-50 p-4 space-y-4 text-slate-900 dark:text-white animate-in fade-in duration-150">
                     <div className="text-xs font-bold uppercase tracking-wider text-slate-400">
                       Cabin & Travellers
                     </div>
@@ -809,41 +798,6 @@ export const HeroSearch: React.FC = () => {
               </div>
             </div>
 
-            {/* 4. Special Fare Discount Selector Strip */}
-            <div className="pt-1 space-y-2">
-              <div className="flex items-center justify-between text-xs font-bold">
-                <span className="text-slate-500 dark:text-slate-400 uppercase tracking-wider text-[10px] font-display">
-                  Select a Special Fare:
-                </span>
-                <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-bold hidden sm:inline">
-                  ✓ Special Government & Concessional Category Savings
-                </span>
-              </div>
-
-              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2">
-                {specialFareOptions.map((f) => (
-                  <button
-                    key={f.id}
-                    type="button"
-                    onClick={() => setSpecialFare(f.id as SpecialFare)}
-                    className={`p-2.5 rounded-xl border text-left transition-all cursor-pointer flex flex-col justify-between ${
-                      specialFare === f.id
-                        ? 'border-[#0062E3] bg-blue-50/90 dark:bg-blue-950/50 text-[#0062E3] dark:text-[#00B2D6] shadow-2xs'
-                        : 'border-slate-200 dark:border-slate-800 hover:border-slate-300 text-slate-700 dark:text-slate-300 bg-white dark:bg-[#0c192e]'
-                    }`}
-                  >
-                    <div className="flex items-center gap-1.5 font-black text-xs font-display">
-                      {f.icon}
-                      <span>{f.label}</span>
-                    </div>
-                    <span className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5 font-semibold leading-tight">
-                      {f.desc}
-                    </span>
-                  </button>
-                ))}
-              </div>
-            </div>
-
             {/* 5. Glowing Centered SEARCH Button */}
             <div className="pt-2 flex flex-col items-center justify-center">
               <button
@@ -858,8 +812,8 @@ export const HeroSearch: React.FC = () => {
         )}
 
         {/* Trending Route Shortcut Badges */}
-        <div className="mt-6 pt-4 border-t border-slate-200 dark:border-white/10 flex flex-wrap items-center gap-2 text-xs">
-          <span className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase font-mono tracking-wider">
+        <div className="mt-4 sm:mt-6 pt-3 sm:pt-4 border-t border-slate-200 dark:border-white/10 flex flex-wrap items-center gap-1.5 sm:gap-2 text-xs">
+          <span className="text-[10px] sm:text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase font-mono tracking-wider w-full sm:w-auto">
             Trending Flights from India:
           </span>
           {[
