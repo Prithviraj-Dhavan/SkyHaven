@@ -187,18 +187,6 @@ SkyHaven/
    * Backend REST API: `http://localhost:5000/api/v1`
    * API Health Check: `http://localhost:5000/health`
 
----
-
-## Demo Accounts
-
-The database seeder automatically provisions test credentials for evaluation:
-
-| Role | Email | Password | Access Level |
-| :--- | :--- | :--- | :--- |
-| **Administrator** | `admin@skyhaven.com` | `Admin@123` | Full administrative KPIs, fleet creation, booking audits |
-| **Customer** | `john.doe@example.com` | `Pass@123` | Flight search, seat selection, checkout, itineraries |
-
-*(The authentication interface provides one-click quick-fill actions for both accounts).*
 
 ---
 
