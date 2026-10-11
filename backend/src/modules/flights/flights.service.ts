@@ -84,47 +84,38 @@ export class FlightsService {
       }
     }
 
-    // Sorting
-    let orderBy: Prisma.FlightOrderByWithRelationInput = { base_price: 'asc' };
-    if (query.sortBy === 'price_desc') orderBy = { base_price: 'desc' };
-    else if (query.sortBy === 'duration_asc') orderBy = { duration_minutes: 'asc' };
-    else if (query.sortBy === 'departure_asc') orderBy = { departure_time: 'asc' };
+    // 6. Time of Day filter
+    const times = query.timeOfDay ? query.timeOfDay.split(',').map((t: string) => t.trim().toLowerCase()) : [];
 
     const page = Math.max(1, query.page || 1);
     const limit = Math.min(50, query.limit || 20);
     const skip = (page - 1) * limit;
 
-    const [flights, totalCount] = await Promise.all([
-      prisma.flight.findMany({
-        where,
-        include: {
-          origin_airport: {
-            include: { city: true },
+    const flights = await prisma.flight.findMany({
+      where,
+      include: {
+        origin_airport: {
+          include: { city: true },
+        },
+        destination_airport: {
+          include: { city: true },
+        },
+        seats: {
+          where: {
+            cabin_class: query.cabinClass || 'ECONOMY',
+            is_booked: false,
           },
-          destination_airport: {
-            include: { city: true },
-          },
-          seats: {
-            where: {
-              cabin_class: query.cabinClass || 'ECONOMY',
-              is_booked: false,
-            },
-            select: { id: true, price_modifier: true },
-          },
-          _count: {
-            select: {
-              seats: {
-                where: { is_booked: false },
-              },
+          select: { id: true, price_modifier: true },
+        },
+        _count: {
+          select: {
+            seats: {
+              where: { is_booked: false },
             },
           },
         },
-        orderBy,
-        skip,
-        take: limit,
-      }),
-      prisma.flight.count({ where }),
-    ]);
+      },
+    });
 
     // Format results with cabin pricing and available seats
     const targetCabin = query.cabinClass || 'ECONOMY';
@@ -177,8 +168,41 @@ export class FlightsService {
       };
     });
 
+    // In-memory time of day filter
+    let finalFlights = formattedFlights;
+    if (times.length > 0) {
+      finalFlights = finalFlights.filter(f => {
+        const hour = new Date(f.departureTime).getHours();
+        if (times.includes('morning') && hour >= 0 && hour < 12) return true;
+        if (times.includes('afternoon') && hour >= 12 && hour < 18) return true;
+        if (times.includes('evening') && hour >= 18 && hour < 24) return true;
+        return false;
+      });
+    }
+
+    // Sort in-memory
+    if (query.sortBy === 'price_asc') {
+      finalFlights.sort((a, b) => a.effectivePrice - b.effectivePrice);
+    } else if (query.sortBy === 'price_desc') {
+      finalFlights.sort((a, b) => b.effectivePrice - a.effectivePrice);
+    } else if (query.sortBy === 'duration_asc') {
+      finalFlights.sort((a, b) => a.durationMinutes - b.durationMinutes);
+    } else if (query.sortBy === 'departure_asc') {
+      finalFlights.sort((a, b) => new Date(a.departureTime).getTime() - new Date(b.departureTime).getTime());
+    } else {
+      // 'best' or default
+      finalFlights.sort((a, b) => {
+        const scoreA = a.effectivePrice * 0.6 + a.durationMinutes * 30;
+        const scoreB = b.effectivePrice * 0.6 + b.durationMinutes * 30;
+        return scoreA - scoreB;
+      });
+    }
+
+    const totalCount = finalFlights.length;
+    const paginatedFlights = finalFlights.slice(skip, skip + limit);
+
     const response = {
-      flights: formattedFlights,
+      flights: paginatedFlights,
       pagination: {
         total: totalCount,
         page,
@@ -193,7 +217,22 @@ export class FlightsService {
     return response;
   }
 
-  public static async getFlightById(flightId: string) {
+  public static async getFlightById(flightId: string, currentUserId?: string) {
+    const now = new Date();
+
+    // Lazy cleanup: clear any expired holds for this flight in the database
+    await prisma.seat.updateMany({
+      where: {
+        flight_id: flightId,
+        held_until: { lte: now },
+        is_booked: false,
+      },
+      data: {
+        held_until: null,
+        held_by_user_id: null,
+      },
+    }).catch(() => {});
+
     const flight = await prisma.flight.findUnique({
       where: { id: flightId },
       include: {
@@ -209,17 +248,24 @@ export class FlightsService {
       throw new AppError('Flight not found', 404, 'FLIGHT_NOT_FOUND');
     }
 
-    const seats = flight.seats.map((s) => ({
-      id: s.id,
-      seatNumber: s.seat_number,
-      cabinClass: s.cabin_class,
-      isBooked: s.is_booked,
-      priceModifier: Number(s.price_modifier),
-      row: s.row,
-      column: s.column,
-      isExitRow: s.is_exit_row,
-      totalPrice: Number(flight.base_price) + Number(s.price_modifier),
-    }));
+    const seats = flight.seats.map((s) => {
+      const isHeldByOther = s.held_until && s.held_until > now && s.held_by_user_id !== currentUserId;
+      const isHeldByMe = Boolean(s.held_until && s.held_until > now && currentUserId && s.held_by_user_id === currentUserId);
+
+      return {
+        id: s.id,
+        seatNumber: s.seat_number,
+        cabinClass: s.cabin_class,
+        isBooked: s.is_booked || Boolean(isHeldByOther),
+        isHeldByMe,
+        heldUntil: s.held_until ? s.held_until.toISOString() : null,
+        priceModifier: Number(s.price_modifier),
+        row: s.row,
+        column: s.column,
+        isExitRow: s.is_exit_row,
+        totalPrice: Number(flight.base_price) + Number(s.price_modifier),
+      };
+    });
 
     return {
       id: flight.id,
