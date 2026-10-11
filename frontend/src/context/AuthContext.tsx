@@ -16,8 +16,13 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const getStoredToken = (): string | null => {
+    if (typeof window === 'undefined') return null;
+    return sessionStorage.getItem('skyhaven_token') || localStorage.getItem('skyhaven_token');
+  };
+
   const [user, setUser] = useState<User | null>(null);
-  const [token, setToken] = useState<string | null>(localStorage.getItem('skyhaven_token'));
+  const [token, setToken] = useState<string | null>(getStoredToken);
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
   const refreshProfile = async () => {
@@ -47,6 +52,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const login = async (email: string, pass: string) => {
     const res = await api.login({ email, password: pass });
     if (res.success && res.data) {
+      sessionStorage.setItem('skyhaven_token', res.data.token);
       localStorage.setItem('skyhaven_token', res.data.token);
       setToken(res.data.token);
       setUser(res.data.user);
@@ -56,6 +62,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const register = async (name: string, email: string, pass: string, phone?: string) => {
     const res = await api.register({ name, email, password: pass, phone });
     if (res.success && res.data) {
+      sessionStorage.setItem('skyhaven_token', res.data.token);
       localStorage.setItem('skyhaven_token', res.data.token);
       setToken(res.data.token);
       setUser(res.data.user);
@@ -63,6 +70,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const logout = () => {
+    sessionStorage.removeItem('skyhaven_token');
     localStorage.removeItem('skyhaven_token');
     setToken(null);
     setUser(null);
