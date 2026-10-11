@@ -118,3 +118,44 @@ export function useClipboard(timeout: number = 2000) {
 
   return { copied, copy };
 }
+
+/**
+ * Custom React hook for tracking seat lock countdown.
+ */
+export function useCountdown(
+  expiresAt: string | null,
+  isActive: boolean = true,
+  onExpire?: () => void
+) {
+  const [secondsLeft, setSecondsLeft] = useState(0);
+
+  useEffect(() => {
+    if (!expiresAt || !isActive) {
+      setSecondsLeft(0);
+      return;
+    }
+
+    const tick = () => {
+      const remaining = Math.max(0, Math.floor((new Date(expiresAt).getTime() - Date.now()) / 1000));
+      setSecondsLeft(remaining);
+      if (remaining <= 0 && onExpire) {
+        onExpire();
+      }
+    };
+
+    tick();
+    const interval = setInterval(tick, 1000);
+    return () => clearInterval(interval);
+  }, [expiresAt, isActive, onExpire]);
+
+  return secondsLeft;
+}
+
+/**
+ * Formats countdown seconds as MM:SS string.
+ */
+export function formatTimer(seconds: number) {
+  const m = Math.floor(seconds / 60);
+  const s = seconds % 60;
+  return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+}
