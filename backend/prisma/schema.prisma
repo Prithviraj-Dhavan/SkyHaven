@@ -3,7 +3,7 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "mysql"
   url      = env("DATABASE_URL")
 }
 
@@ -19,6 +19,7 @@ model User {
   updated_at    DateTime  @updatedAt
 
   bookings      Booking[]
+  feedbacks     Feedback[]
 
   @@map("users")
 }
@@ -54,7 +55,7 @@ model Airport {
 
 model Flight {
   id                     String       @id @default(uuid())
-  flight_number          String       @unique // e.g. AM-102
+  flight_number          String       @unique // e.g. SH-102
   airline                String
   origin_airport_id      String
   destination_airport_id String
@@ -79,20 +80,22 @@ model Flight {
 }
 
 model Seat {
-  id             String     @id @default(uuid())
-  flight_id      String
-  seat_number    String     // e.g. "1A", "14F"
-  cabin_class    String     @default("ECONOMY") // ECONOMY, PREMIUM_ECONOMY, BUSINESS, FIRST
-  is_booked      Boolean    @default(false)
-  price_modifier Float      @default(0.0)
-  row            Int
-  column         String
-  is_exit_row    Boolean    @default(false)
-  created_at     DateTime   @default(now())
-  updated_at     DateTime   @updatedAt
+  id              String     @id @default(uuid())
+  flight_id       String
+  seat_number     String     // e.g. "1A", "14F"
+  cabin_class     String     @default("ECONOMY") // ECONOMY, PREMIUM_ECONOMY, BUSINESS, FIRST
+  is_booked       Boolean    @default(false)
+  price_modifier  Float      @default(0.0)
+  row             Int
+  column          String
+  is_exit_row     Boolean    @default(false)
+  held_until      DateTime?
+  held_by_user_id String?
+  created_at      DateTime   @default(now())
+  updated_at      DateTime   @updatedAt
 
-  flight         Flight     @relation(fields: [flight_id], references: [id], onDelete: Cascade)
-  tickets        Ticket[]
+  flight          Flight     @relation(fields: [flight_id], references: [id], onDelete: Cascade)
+  tickets         Ticket[]
 
   @@unique([flight_id, seat_number])
   @@map("seats")
@@ -100,7 +103,7 @@ model Seat {
 
 model Booking {
   id                String        @id @default(uuid())
-  booking_reference String        @unique // e.g. "AM-789234"
+  booking_reference String        @unique // e.g. "SH-789234"
   user_id           String
   flight_id         String
   status            String        @default("CONFIRMED") // PENDING, CONFIRMED, CANCELLED
@@ -149,4 +152,18 @@ model Payment {
   booking         Booking       @relation(fields: [booking_id], references: [id], onDelete: Cascade)
 
   @@map("payments")
+}
+
+model Feedback {
+  id         String   @id @default(uuid())
+  user_id    String?
+  name       String
+  email      String
+  message    String   @db.Text
+  rating     Int?
+  created_at DateTime @default(now())
+
+  user       User?    @relation(fields: [user_id], references: [id], onDelete: SetNull)
+
+  @@map("feedbacks")
 }
