@@ -164,7 +164,7 @@ async function main() {
 
       if (!originAirport || !destAirport) continue;
 
-      const flightNum = `AM-${flightCounter}`;
+      const flightNum = `SH-${flightCounter}`;
       const priceVariation = Math.floor(Math.sin(flightCounter) * 300);
       const flight = await prisma.flight.create({
         data: {
@@ -202,7 +202,6 @@ async function main() {
         }
 
         for (const col of ['A', 'B', 'C', 'D', 'E', 'F']) {
-          const isBooked = (row + col.charCodeAt(0) + flightCounter) % 6 === 0;
           allSeats.push({
             flight_id: flight.id,
             seat_number: `${row}${col}`,
@@ -211,7 +210,7 @@ async function main() {
             row,
             column: col,
             is_exit_row: row === 6,
-            is_booked: isBooked,
+            is_booked: false,
           });
         }
       }
@@ -243,7 +242,7 @@ async function main() {
 
       const booking = await prisma.booking.create({
         data: {
-          booking_reference: 'AM-908234',
+          booking_reference: 'SH-908234',
           user_id: john.id,
           flight_id: upcomingFlight.id,
           status: 'CONFIRMED',
@@ -267,11 +266,11 @@ async function main() {
       await prisma.payment.create({
         data: {
           booking_id: booking.id,
-          provider: 'MOCK_RAZORPAY',
+          provider: 'MOCK_STRIPE',
           status: 'SUCCESS',
           amount: booking.total_amount,
           currency: 'INR',
-          transaction_ref: 'txn_razorpay_908234aero',
+          transaction_ref: 'txn_stripe_908234sky',
           payment_method: 'UPI',
           card_last4: '9841',
         },
