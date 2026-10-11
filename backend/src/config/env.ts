@@ -22,7 +22,8 @@ const envSchema = z.object({
   OPENAI_API_KEY: z.string().optional(),
   GEMINI_API_KEY: z.string().optional(),
   ANTHROPIC_API_KEY: z.string().optional(),
-  AI_PROVIDER: z.enum(['openai', 'gemini', 'anthropic', 'rule_engine']).default('rule_engine'),
+  GROQ_API_KEY: z.string().optional(),
+  AI_PROVIDER: z.enum(['openai', 'gemini', 'anthropic', 'groq', 'rule_engine']).default('rule_engine'),
 });
 
 const parsedEnv = envSchema.safeParse(process.env);
