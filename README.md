@@ -217,8 +217,3 @@ npm run build
 
 The compiled server outputs to `backend/dist/`, and the client bundle outputs to `frontend/dist/`.
 
----
-
-## License
-
-This project is licensed under the MIT License.
