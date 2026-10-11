@@ -37,6 +37,8 @@ export interface FlightSeat {
   seatNumber: string;
   cabinClass: CabinClass;
   isBooked: boolean;
+  isHeldByMe?: boolean;
+  heldUntil?: string | null;
   priceModifier: number;
   row: number;
   column: string;
@@ -121,7 +123,7 @@ export interface FlightSearchParams {
   airlines?: string;
   stops?: string;
   timeOfDay?: string;
-  sortBy?: 'price_asc' | 'price_desc' | 'duration_asc' | 'departure_asc';
+  sortBy?: 'best' | 'price_asc' | 'price_desc' | 'duration_asc' | 'departure_asc';
   tripType: 'one-way' | 'round-trip' | 'multi-city';
 }
 
