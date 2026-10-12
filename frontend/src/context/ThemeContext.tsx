@@ -11,8 +11,8 @@ const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [theme, setTheme] = useState<Theme>(() => {
-    const saved = localStorage.getItem('skyhaven_theme') as Theme;
-    return saved || 'dark'; // Default to dark for high-tech aviation aesthetic
+    const saved = localStorage.getItem('skyhaven_user_theme') as Theme;
+    return saved === 'dark' ? 'dark' : 'light'; // Clean light/white theme as default
   });
 
   useEffect(() => {
@@ -24,7 +24,7 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       root.classList.remove('dark');
       root.classList.add('light');
     }
-    localStorage.setItem('skyhaven_theme', theme);
+    localStorage.setItem('skyhaven_user_theme', theme);
   }, [theme]);
 
   const toggleTheme = () => {
