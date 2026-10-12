@@ -236,71 +236,67 @@ async function main() {
   const allSeats: any[] = [];
 
   // Seed across today and next 9 days (10 days total)
-  // 2 flights per day for every route: Morning and Evening
-  // 132 routes * 2 flights/day * 10 days = 2,640 flights!
+  // 132 routes * 10 days = 1,320 flights with FULL 12 ROWS (72 seats per flight) = 95,040 seats!
   for (let dayOffset = 0; dayOffset < 10; dayOffset++) {
     for (const r of routes) {
-      // 2 flight slots per route per day: Slot 0 = Morning, Slot 1 = Evening
-      for (const slot of [0, 1]) {
-        flightCounter++;
-        const hour = slot === 0 ? 6 + ((flightCounter * 3) % 6) : 14 + ((flightCounter * 5) % 8);
-        const minute = (flightCounter * 15) % 60;
-        const depDate = new Date(Date.UTC(baseYear, baseMonth, baseDate + dayOffset, hour, minute, 0, 0));
-        const arrDate = new Date(depDate.getTime() + r.duration * 60 * 1000);
-        const airline = airlines[flightCounter % airlines.length];
-        const aircraft = aircraftTypes[flightCounter % aircraftTypes.length];
-        const originId = airportMap.get(r.from)!;
-        const destId = airportMap.get(r.to)!;
+      flightCounter++;
+      const hour = 6 + ((flightCounter * 3) % 15);
+      const minute = (flightCounter * 15) % 60;
+      const depDate = new Date(Date.UTC(baseYear, baseMonth, baseDate + dayOffset, hour, minute, 0, 0));
+      const arrDate = new Date(depDate.getTime() + r.duration * 60 * 1000);
+      const airline = airlines[flightCounter % airlines.length];
+      const aircraft = aircraftTypes[flightCounter % aircraftTypes.length];
+      const originId = airportMap.get(r.from)!;
+      const destId = airportMap.get(r.to)!;
 
-        const flightId = randomUUID();
-        const flightNum = `SH-${flightCounter}`;
-        const priceVariation = Math.floor(Math.sin(flightCounter) * 350) + (slot === 1 ? 400 : 0);
+      const flightId = randomUUID();
+      const flightNum = `SH-${flightCounter}`;
+      const priceVariation = Math.floor(Math.sin(flightCounter) * 350);
 
-        flightRecords.push({
-          id: flightId,
-          flight_number: flightNum,
-          airline,
-          origin_airport_id: originId,
-          destination_airport_id: destId,
-          departure_time: depDate,
-          arrival_time: arrDate,
-          base_price: Math.max(2500, r.basePrice + priceVariation),
-          aircraft_type: aircraft,
-          duration_minutes: r.duration,
-          gate: `G${(flightCounter % 28) + 1}`,
-          terminal: `T${(flightCounter % 3) + 1}`,
-          status: 'SCHEDULED',
-        });
+      flightRecords.push({
+        id: flightId,
+        flight_number: flightNum,
+        airline,
+        origin_airport_id: originId,
+        destination_airport_id: destId,
+        departure_time: depDate,
+        arrival_time: arrDate,
+        base_price: Math.max(2500, r.basePrice + priceVariation),
+        aircraft_type: aircraft,
+        duration_minutes: r.duration,
+        gate: `G${(flightCounter % 28) + 1}`,
+        terminal: `T${(flightCounter % 3) + 1}`,
+        status: 'SCHEDULED',
+      });
 
-        // 6 Rows (36 seats per flight: 1 First, 1 Business, 1 Premium, 3 Economy)
-        for (let row = 1; row <= 6; row++) {
-          let cabinClass = 'ECONOMY';
-          let priceModifier = 0;
+      // FULL 12 Rows (72 seats per flight: 2 First, 3 Business, 2 Premium, 5 Economy)
+      for (let row = 1; row <= 12; row++) {
+        let cabinClass = 'ECONOMY';
+        let priceModifier = 0;
 
-          if (row === 1) {
-            cabinClass = 'FIRST';
-            priceModifier = 12500;
-          } else if (row === 2) {
-            cabinClass = 'BUSINESS';
-            priceModifier = 7500;
-          } else if (row === 3) {
-            cabinClass = 'PREMIUM_ECONOMY';
-            priceModifier = 2800;
-          }
+        if (row <= 2) {
+          cabinClass = 'FIRST';
+          priceModifier = 12500;
+        } else if (row <= 5) {
+          cabinClass = 'BUSINESS';
+          priceModifier = 7500;
+        } else if (row <= 7) {
+          cabinClass = 'PREMIUM_ECONOMY';
+          priceModifier = 2800;
+        }
 
-          for (const col of ['A', 'B', 'C', 'D', 'E', 'F']) {
-            allSeats.push({
-              id: randomUUID(),
-              flight_id: flightId,
-              seat_number: `${row}${col}`,
-              cabin_class: cabinClass,
-              price_modifier: priceModifier,
-              row,
-              column: col,
-              is_exit_row: row === 3,
-              is_booked: false,
-            });
-          }
+        for (const col of ['A', 'B', 'C', 'D', 'E', 'F']) {
+          allSeats.push({
+            id: randomUUID(),
+            flight_id: flightId,
+            seat_number: `${row}${col}`,
+            cabin_class: cabinClass,
+            price_modifier: priceModifier,
+            row,
+            column: col,
+            is_exit_row: row === 6,
+            is_booked: false,
+          });
         }
       }
     }
