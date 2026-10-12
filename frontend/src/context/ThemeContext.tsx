@@ -11,7 +11,12 @@ const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [theme, setTheme] = useState<Theme>(() => {
-    const saved = localStorage.getItem('skyhaven_user_theme') as Theme;
+    // Clear out old persisted dark mode keys from previous visits
+    try {
+      localStorage.removeItem('skyhaven_theme');
+      localStorage.removeItem('skyhaven_user_theme');
+    } catch {}
+    const saved = localStorage.getItem('skyhaven_theme_v3') as Theme;
     return saved === 'dark' ? 'dark' : 'light'; // Clean light/white theme as default
   });
 
@@ -24,7 +29,7 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       root.classList.remove('dark');
       root.classList.add('light');
     }
-    localStorage.setItem('skyhaven_user_theme', theme);
+    localStorage.setItem('skyhaven_theme_v3', theme);
   }, [theme]);
 
   const toggleTheme = () => {

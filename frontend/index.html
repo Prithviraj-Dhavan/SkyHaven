@@ -15,6 +15,21 @@
   <link
     href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&family=Outfit:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@500;600;700;800&display=swap"
     rel="stylesheet">
+
+  <script>
+    try {
+      localStorage.removeItem('skyhaven_theme');
+      localStorage.removeItem('skyhaven_user_theme');
+      const mode = localStorage.getItem('skyhaven_theme_v3');
+      if (mode === 'dark') {
+        document.documentElement.classList.add('dark');
+        document.documentElement.classList.remove('light');
+      } else {
+        document.documentElement.classList.remove('dark');
+        document.documentElement.classList.add('light');
+      }
+    } catch (e) {}
+  </script>
 </head>
 
 <body
