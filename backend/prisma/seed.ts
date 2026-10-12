@@ -1,12 +1,13 @@
 import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcryptjs';
+import { randomUUID } from 'crypto';
 
 const prisma = new PrismaClient();
 
 async function main() {
-  console.log('🌱 Starting SkyHaven Database Seeding in Indian Rupees (INR)...');
+  console.log('🌱 Starting Fast All-Station SkyHaven Seeding in INR...');
 
-  // Clean existing data
+  // Clean previous records
   await prisma.payment.deleteMany();
   await prisma.ticket.deleteMany();
   await prisma.booking.deleteMany();
@@ -15,15 +16,15 @@ async function main() {
   await prisma.airport.deleteMany();
   await prisma.city.deleteMany();
   await prisma.user.deleteMany();
+  console.log('🧹 Cleaned existing records.');
 
-  console.log('🧹 Cleaned previous records.');
-
-  // 1. Seed Users
+  // 1. Users
   const passwordHashAdmin = await bcrypt.hash('Admin@123', 10);
   const passwordHashCustomer = await bcrypt.hash('Pass@123', 10);
 
   const admin = await prisma.user.create({
     data: {
+      id: randomUUID(),
       name: 'SkyHaven Administrator',
       email: 'admin@skyhaven.com',
       password_hash: passwordHashAdmin,
@@ -34,6 +35,7 @@ async function main() {
 
   const john = await prisma.user.create({
     data: {
+      id: randomUUID(),
       name: 'Prithviraj Sharma',
       email: 'john.doe@example.com',
       password_hash: passwordHashCustomer,
@@ -44,6 +46,7 @@ async function main() {
 
   const sarah = await prisma.user.create({
     data: {
+      id: randomUUID(),
       name: 'Ananya Verma',
       email: 'sarah.smith@example.com',
       password_hash: passwordHashCustomer,
@@ -52,9 +55,9 @@ async function main() {
     },
   });
 
-  console.log('👤 Created demo users (Admin & Customers).');
+  console.log('👤 Created demo users.');
 
-  // 2. Seed Cities & Airports
+  // 2. Cities & Airports
   const citiesData = [
     { name: 'New Delhi', country: 'India', timezone: 'Asia/Kolkata', image: 'https://images.unsplash.com/photo-1587474260584-136574528ed5?auto=format&fit=crop&w=800&q=80', code: 'DEL', airport: 'Indira Gandhi International Airport' },
     { name: 'Mumbai', country: 'India', timezone: 'Asia/Kolkata', image: 'https://images.unsplash.com/photo-1570168007204-dfb528c6958f?auto=format&fit=crop&w=800&q=80', code: 'BOM', airport: 'Chhatrapati Shivaji Maharaj International Airport' },
@@ -70,11 +73,13 @@ async function main() {
     { name: 'Sydney', country: 'Australia', timezone: 'Australia/Sydney', image: 'https://images.unsplash.com/photo-1506973035872-a4ec16b8e8d9?auto=format&fit=crop&w=800&q=80', code: 'SYD', airport: 'Sydney Kingsford Smith Airport' },
   ];
 
-  const airportMap = new Map<string, any>();
+  const airportMap = new Map<string, string>(); // code -> id
 
   for (const c of citiesData) {
-    const city = await prisma.city.create({
+    const cityId = randomUUID();
+    await prisma.city.create({
       data: {
+        id: cityId,
         name: c.name,
         country: c.country,
         timezone: c.timezone,
@@ -82,21 +87,22 @@ async function main() {
       },
     });
 
-    const airport = await prisma.airport.create({
+    const airportId = randomUUID();
+    await prisma.airport.create({
       data: {
+        id: airportId,
         code: c.code,
         name: c.airport,
-        city_id: city.id,
+        city_id: cityId,
       },
-      include: { city: true },
     });
 
-    airportMap.set(c.code, airport);
+    airportMap.set(c.code, airportId);
   }
 
   console.log(`✈️ Created ${citiesData.length} Cities and International Airports.`);
 
-  // 3. Seed Realistic INR Flights
+  // 3. Complete All-Station Route Matrix
   const airlines = [
     'SkyHaven Airways',
     'SkyLuxe International',
@@ -113,65 +119,149 @@ async function main() {
     'Boeing 777-300ER',
   ];
 
-  const routes = [
-    { from: 'DEL', to: 'BOM', basePrice: 4850, duration: 130 },
-    { from: 'BOM', to: 'DEL', basePrice: 4850, duration: 130 },
-    { from: 'DEL', to: 'GOI', basePrice: 5400, duration: 155 },
-    { from: 'GOI', to: 'DEL', basePrice: 5400, duration: 155 },
-    { from: 'BOM', to: 'GOI', basePrice: 3650, duration: 75 },
-    { from: 'GOI', to: 'BOM', basePrice: 3650, duration: 75 },
-    { from: 'DEL', to: 'BLR', basePrice: 6200, duration: 170 },
-    { from: 'BLR', to: 'DEL', basePrice: 6200, duration: 170 },
-    { from: 'BOM', to: 'BLR', basePrice: 4150, duration: 100 },
-    { from: 'BLR', to: 'BOM', basePrice: 4150, duration: 100 },
-    { from: 'BLR', to: 'GOI', basePrice: 3200, duration: 70 },
-    { from: 'GOI', to: 'BLR', basePrice: 3200, duration: 70 },
-    { from: 'DEL', to: 'DXB', basePrice: 18500, duration: 235 },
-    { from: 'DXB', to: 'DEL', basePrice: 18500, duration: 235 },
-    { from: 'BOM', to: 'LHR', basePrice: 48000, duration: 570 },
-    { from: 'LHR', to: 'BOM', basePrice: 48000, duration: 570 },
-    { from: 'DEL', to: 'JFK', basePrice: 68000, duration: 920 },
-    { from: 'JFK', to: 'DEL', basePrice: 68000, duration: 920 },
-    { from: 'SIN', to: 'HND', basePrice: 36000, duration: 410 },
-    { from: 'HND', to: 'SIN', basePrice: 36000, duration: 410 },
-    { from: 'LHR', to: 'JFK', basePrice: 42000, duration: 460 },
-    { from: 'JFK', to: 'LHR', basePrice: 42000, duration: 460 },
-    { from: 'CDG', to: 'DXB', basePrice: 34000, duration: 395 },
-    { from: 'DXB', to: 'CDG', basePrice: 34000, duration: 395 },
-    { from: 'SFO', to: 'HND', basePrice: 58000, duration: 680 },
-    { from: 'SIN', to: 'SYD', basePrice: 39000, duration: 470 },
-  ];
+  const airportCodes = citiesData.map(c => c.code);
+
+  function getRouteMetrics(from: string, to: string) {
+    const predefined: Record<string, { duration: number; basePrice: number }> = {
+      'DEL-BOM': { duration: 130, basePrice: 4850 },
+      'BOM-DEL': { duration: 130, basePrice: 4850 },
+      'DEL-GOI': { duration: 155, basePrice: 5400 },
+      'GOI-DEL': { duration: 155, basePrice: 5400 },
+      'BOM-GOI': { duration: 75, basePrice: 3650 },
+      'GOI-BOM': { duration: 75, basePrice: 3650 },
+      'DEL-BLR': { duration: 170, basePrice: 6200 },
+      'BLR-DEL': { duration: 170, basePrice: 6200 },
+      'BOM-BLR': { duration: 100, basePrice: 4150 },
+      'BLR-BOM': { duration: 100, basePrice: 4150 },
+      'BLR-GOI': { duration: 70, basePrice: 3200 },
+      'GOI-BLR': { duration: 70, basePrice: 3200 },
+
+      // India <-> Middle East
+      'DEL-DXB': { duration: 235, basePrice: 18500 },
+      'DXB-DEL': { duration: 235, basePrice: 18500 },
+      'BOM-DXB': { duration: 200, basePrice: 16800 },
+      'DXB-BOM': { duration: 200, basePrice: 16800 },
+      'BLR-DXB': { duration: 245, basePrice: 19200 },
+      'DXB-BLR': { duration: 245, basePrice: 19200 },
+      'GOI-DXB': { duration: 215, basePrice: 17900 },
+      'DXB-GOI': { duration: 215, basePrice: 17900 },
+
+      // India <-> Europe
+      'DEL-LHR': { duration: 550, basePrice: 46000 },
+      'LHR-DEL': { duration: 550, basePrice: 46000 },
+      'BOM-LHR': { duration: 570, basePrice: 48000 },
+      'LHR-BOM': { duration: 570, basePrice: 48000 },
+      'BLR-LHR': { duration: 610, basePrice: 49500 },
+      'LHR-BLR': { duration: 610, basePrice: 49500 },
+      'DEL-CDG': { duration: 530, basePrice: 44000 },
+      'CDG-DEL': { duration: 530, basePrice: 44000 },
+      'BOM-CDG': { duration: 545, basePrice: 45500 },
+      'CDG-BOM': { duration: 545, basePrice: 45500 },
+      'BLR-CDG': { duration: 590, basePrice: 47000 },
+      'CDG-BLR': { duration: 590, basePrice: 47000 },
+
+      // India <-> North America
+      'DEL-JFK': { duration: 920, basePrice: 68000 },
+      'JFK-DEL': { duration: 920, basePrice: 68000 },
+      'BOM-JFK': { duration: 950, basePrice: 71000 },
+      'JFK-BOM': { duration: 950, basePrice: 71000 },
+      'DEL-SFO': { duration: 960, basePrice: 72000 },
+      'SFO-DEL': { duration: 960, basePrice: 72000 },
+      'BLR-SFO': { duration: 980, basePrice: 74000 },
+      'SFO-BLR': { duration: 980, basePrice: 74000 },
+
+      // India <-> East Asia & Pacific
+      'DEL-SIN': { duration: 330, basePrice: 24500 },
+      'SIN-DEL': { duration: 330, basePrice: 24500 },
+      'BOM-SIN': { duration: 315, basePrice: 23800 },
+      'SIN-BOM': { duration: 315, basePrice: 23800 },
+      'BLR-SIN': { duration: 285, basePrice: 21500 },
+      'SIN-BLR': { duration: 285, basePrice: 21500 },
+      'DEL-HND': { duration: 490, basePrice: 41000 },
+      'HND-DEL': { duration: 490, basePrice: 41000 },
+      'BOM-HND': { duration: 510, basePrice: 42500 },
+      'HND-BOM': { duration: 510, basePrice: 42500 },
+      'DEL-SYD': { duration: 690, basePrice: 52000 },
+      'SYD-DEL': { duration: 690, basePrice: 52000 },
+      'BOM-SYD': { duration: 710, basePrice: 54000 },
+      'SYD-BOM': { duration: 710, basePrice: 54000 },
+
+      // Major Global Connectors
+      'LHR-JFK': { duration: 460, basePrice: 42000 },
+      'JFK-LHR': { duration: 460, basePrice: 42000 },
+      'LHR-CDG': { duration: 80, basePrice: 9500 },
+      'CDG-LHR': { duration: 80, basePrice: 9500 },
+      'SIN-HND': { duration: 410, basePrice: 36000 },
+      'HND-SIN': { duration: 410, basePrice: 36000 },
+      'SIN-SYD': { duration: 470, basePrice: 39000 },
+      'SYD-SIN': { duration: 470, basePrice: 39000 },
+      'SFO-HND': { duration: 680, basePrice: 58000 },
+      'HND-SFO': { duration: 680, basePrice: 58000 },
+      'CDG-DXB': { duration: 395, basePrice: 34000 },
+      'DXB-CDG': { duration: 395, basePrice: 34000 },
+    };
+
+    const key = `${from}-${to}`;
+    if (predefined[key]) return predefined[key];
+
+    const isIndiaFrom = ['DEL', 'BOM', 'BLR', 'GOI'].includes(from);
+    const isIndiaTo = ['DEL', 'BOM', 'BLR', 'GOI'].includes(to);
+    if (isIndiaFrom && isIndiaTo) {
+      return { duration: 120, basePrice: 4500 };
+    } else if (isIndiaFrom || isIndiaTo) {
+      return { duration: 450, basePrice: 38000 };
+    }
+    return { duration: 520, basePrice: 46000 };
+  }
+
+  // 132 pairwise routes
+  const routes: { from: string; to: string; basePrice: number; duration: number }[] = [];
+  for (const from of airportCodes) {
+    for (const to of airportCodes) {
+      if (from !== to) {
+        const metrics = getRouteMetrics(from, to);
+        routes.push({ from, to, basePrice: metrics.basePrice, duration: metrics.duration });
+      }
+    }
+  }
+
+  console.log(`🗺️ Generated ${routes.length} pairwise routes connecting all ${airportCodes.length} stations.`);
 
   const now = new Date();
+  const baseYear = now.getUTCFullYear();
+  const baseMonth = now.getUTCMonth();
+  const baseDate = now.getUTCDate();
   let flightCounter = 100;
-  const createdFlights: any[] = [];
+  const flightRecords: any[] = [];
   const allSeats: any[] = [];
 
-  // Seed flights for today and the next 10 days
-  for (let dayOffset = 0; dayOffset <= 10; dayOffset++) {
+  // Seed across today and next 9 days (10 days total)
+  // 2 flights per day for every route: Morning and Evening
+  // 132 routes * 2 flights/day * 10 days = 2,640 flights!
+  for (let dayOffset = 0; dayOffset < 10; dayOffset++) {
     for (const r of routes) {
-      flightCounter++;
-      const depDate = new Date(now);
-      depDate.setDate(now.getDate() + dayOffset);
-      depDate.setHours(6 + (flightCounter % 14), ((flightCounter * 15) % 60), 0, 0);
+      // 2 flight slots per route per day: Slot 0 = Morning, Slot 1 = Evening
+      for (const slot of [0, 1]) {
+        flightCounter++;
+        const hour = slot === 0 ? 6 + ((flightCounter * 3) % 6) : 14 + ((flightCounter * 5) % 8);
+        const minute = (flightCounter * 15) % 60;
+        const depDate = new Date(Date.UTC(baseYear, baseMonth, baseDate + dayOffset, hour, minute, 0, 0));
+        const arrDate = new Date(depDate.getTime() + r.duration * 60 * 1000);
+        const airline = airlines[flightCounter % airlines.length];
+        const aircraft = aircraftTypes[flightCounter % aircraftTypes.length];
+        const originId = airportMap.get(r.from)!;
+        const destId = airportMap.get(r.to)!;
 
-      const arrDate = new Date(depDate.getTime() + r.duration * 60 * 1000);
+        const flightId = randomUUID();
+        const flightNum = `SH-${flightCounter}`;
+        const priceVariation = Math.floor(Math.sin(flightCounter) * 350) + (slot === 1 ? 400 : 0);
 
-      const airline = airlines[flightCounter % airlines.length];
-      const aircraft = aircraftTypes[flightCounter % aircraftTypes.length];
-      const originAirport = airportMap.get(r.from);
-      const destAirport = airportMap.get(r.to);
-
-      if (!originAirport || !destAirport) continue;
-
-      const flightNum = `SH-${flightCounter}`;
-      const priceVariation = Math.floor(Math.sin(flightCounter) * 300);
-      const flight = await prisma.flight.create({
-        data: {
+        flightRecords.push({
+          id: flightId,
           flight_number: flightNum,
           airline,
-          origin_airport_id: originAirport.id,
-          destination_airport_id: destAirport.id,
+          origin_airport_id: originId,
+          destination_airport_id: destId,
           departure_time: depDate,
           arrival_time: arrDate,
           base_price: Math.max(2500, r.basePrice + priceVariation),
@@ -180,114 +270,109 @@ async function main() {
           gate: `G${(flightCounter % 28) + 1}`,
           terminal: `T${(flightCounter % 3) + 1}`,
           status: 'SCHEDULED',
-        },
-      });
+        });
 
-      createdFlights.push(flight);
+        // 6 Rows (36 seats per flight: 1 First, 1 Business, 1 Premium, 3 Economy)
+        for (let row = 1; row <= 6; row++) {
+          let cabinClass = 'ECONOMY';
+          let priceModifier = 0;
 
-      // Generate 12 Rows (72 seats per flight: 2 First, 3 Business, 2 Premium, 5 Economy)
-      for (let row = 1; row <= 12; row++) {
-        let cabinClass = 'ECONOMY';
-        let priceModifier = 0;
+          if (row === 1) {
+            cabinClass = 'FIRST';
+            priceModifier = 12500;
+          } else if (row === 2) {
+            cabinClass = 'BUSINESS';
+            priceModifier = 7500;
+          } else if (row === 3) {
+            cabinClass = 'PREMIUM_ECONOMY';
+            priceModifier = 2800;
+          }
 
-        if (row <= 2) {
-          cabinClass = 'FIRST';
-          priceModifier = 12500;
-        } else if (row <= 5) {
-          cabinClass = 'BUSINESS';
-          priceModifier = 7500;
-        } else if (row <= 7) {
-          cabinClass = 'PREMIUM_ECONOMY';
-          priceModifier = 2800;
-        }
-
-        for (const col of ['A', 'B', 'C', 'D', 'E', 'F']) {
-          allSeats.push({
-            flight_id: flight.id,
-            seat_number: `${row}${col}`,
-            cabin_class: cabinClass,
-            price_modifier: priceModifier,
-            row,
-            column: col,
-            is_exit_row: row === 6,
-            is_booked: false,
-          });
+          for (const col of ['A', 'B', 'C', 'D', 'E', 'F']) {
+            allSeats.push({
+              id: randomUUID(),
+              flight_id: flightId,
+              seat_number: `${row}${col}`,
+              cabin_class: cabinClass,
+              price_modifier: priceModifier,
+              row,
+              column: col,
+              is_exit_row: row === 3,
+              is_booked: false,
+            });
+          }
         }
       }
     }
   }
 
-  console.log(`✈️ Created ${createdFlights.length} Flights. Inserting ${allSeats.length} seats...`);
+  console.log(`✈️ Inserting ${flightRecords.length} Flights in high-speed batches...`);
+  // Insert flights in batches of 500
+  for (let i = 0; i < flightRecords.length; i += 500) {
+    const chunk = flightRecords.slice(i, i + 500);
+    await prisma.flight.createMany({ data: chunk });
+  }
+  console.log(`✅ ${flightRecords.length} Flights inserted successfully!`);
 
-  const chunkSize = 500;
-  for (let i = 0; i < allSeats.length; i += chunkSize) {
-    const chunk = allSeats.slice(i, i + chunkSize);
+  console.log(`💺 Inserting ${allSeats.length} Seats in high-speed batches...`);
+  // Insert seats in batches of 2000
+  for (let i = 0; i < allSeats.length; i += 2000) {
+    const chunk = allSeats.slice(i, i + 2000);
     await prisma.seat.createMany({ data: chunk });
   }
+  console.log(`✅ ${allSeats.length} Seats inserted successfully!`);
 
-  console.log(`🛫 Generated ${createdFlights.length} Flights with complete cabin grids.`);
+  // Sample booking for demo user
+  const sampleFlight = flightRecords[0];
+  const sampleSeat = allSeats.find(s => s.flight_id === sampleFlight.id && s.cabin_class === 'BUSINESS') || allSeats[0];
+  
+  await prisma.seat.update({
+    where: { id: sampleSeat.id },
+    data: { is_booked: true }
+  });
 
-  // 4. Seed sample past and upcoming bookings
-  if (createdFlights.length > 2) {
-    const upcomingFlight = createdFlights[1];
-    const availableSeat1 = await prisma.seat.findFirst({
-      where: { flight_id: upcomingFlight.id, is_booked: false, cabin_class: 'BUSINESS' },
-    });
+  const booking = await prisma.booking.create({
+    data: {
+      id: randomUUID(),
+      booking_reference: 'SH-908234',
+      user_id: john.id,
+      flight_id: sampleFlight.id,
+      status: 'CONFIRMED',
+      total_amount: Number(sampleFlight.base_price) + Number(sampleSeat.price_modifier),
+    },
+  });
 
-    if (availableSeat1) {
-      await prisma.seat.update({
-        where: { id: availableSeat1.id },
-        data: { is_booked: true },
-      });
+  await prisma.ticket.create({
+    data: {
+      id: randomUUID(),
+      ticket_number: 'TKT-9832104',
+      booking_id: booking.id,
+      seat_id: sampleSeat.id,
+      passenger_name: 'Prithviraj Sharma',
+      passenger_email: 'john.doe@example.com',
+      passenger_document: 'P98421092',
+      passenger_type: 'ADULT',
+      pdf_url: '/api/v1/bookings/tickets/TKT-9832104/pdf',
+    },
+  });
 
-      const booking = await prisma.booking.create({
-        data: {
-          booking_reference: 'SH-908234',
-          user_id: john.id,
-          flight_id: upcomingFlight.id,
-          status: 'CONFIRMED',
-          total_amount: Number(upcomingFlight.base_price) + Number(availableSeat1.price_modifier),
-        },
-      });
+  await prisma.payment.create({
+    data: {
+      id: randomUUID(),
+      booking_id: booking.id,
+      provider: 'MOCK_STRIPE',
+      status: 'SUCCESS',
+      amount: booking.total_amount,
+      currency: 'INR',
+      transaction_ref: 'txn_stripe_908234sky',
+      payment_method: 'UPI',
+      card_last4: '9841',
+    },
+  });
 
-      await prisma.ticket.create({
-        data: {
-          ticket_number: 'TKT-9832104',
-          booking_id: booking.id,
-          seat_id: availableSeat1.id,
-          passenger_name: 'Prithviraj Sharma',
-          passenger_email: 'john.doe@example.com',
-          passenger_document: 'P98421092',
-          passenger_type: 'ADULT',
-          pdf_url: '/api/v1/bookings/tickets/TKT-9832104/pdf',
-        },
-      });
-
-      await prisma.payment.create({
-        data: {
-          booking_id: booking.id,
-          provider: 'MOCK_STRIPE',
-          status: 'SUCCESS',
-          amount: booking.total_amount,
-          currency: 'INR',
-          transaction_ref: 'txn_stripe_908234sky',
-          payment_method: 'UPI',
-          card_last4: '9841',
-        },
-      });
-
-      console.log('🎟️ Created sample active booking for Prithviraj Sharma.');
-    }
-  }
-
-  console.log('✅ SkyHaven Database Seed in INR completed successfully!');
+  console.log('🎉 Complete all-station database seed finished successfully!');
 }
 
 main()
-  .catch((e) => {
-    console.error('❌ Seeding failed:', e);
-    process.exit(1);
-  })
-  .finally(async () => {
-    await prisma.$disconnect();
-  });
+  .catch(console.error)
+  .finally(() => prisma.$disconnect());

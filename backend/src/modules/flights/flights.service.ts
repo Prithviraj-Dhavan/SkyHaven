@@ -47,11 +47,21 @@ export class FlightsService {
 
     // 3. Departure Date filter (optional query)
     if (query.departureDate && query.departureDate.trim() !== '') {
-      const startOfDay = new Date(query.departureDate);
-      startOfDay.setHours(0, 0, 0, 0);
-
-      const endOfDay = new Date(query.departureDate);
-      endOfDay.setHours(23, 59, 59, 999);
+      const dateParts = query.departureDate.trim().split('-');
+      let startOfDay: Date;
+      let endOfDay: Date;
+      if (dateParts.length === 3) {
+        const y = parseInt(dateParts[0], 10);
+        const m = parseInt(dateParts[1], 10) - 1;
+        const d = parseInt(dateParts[2], 10);
+        startOfDay = new Date(Date.UTC(y, m, d, 0, 0, 0, 0));
+        endOfDay = new Date(Date.UTC(y, m, d, 23, 59, 59, 999));
+      } else {
+        startOfDay = new Date(query.departureDate);
+        startOfDay.setUTCHours(0, 0, 0, 0);
+        endOfDay = new Date(query.departureDate);
+        endOfDay.setUTCHours(23, 59, 59, 999);
+      }
 
       // Check if flights exist for this date
       const dateCount = await prisma.flight.count({
