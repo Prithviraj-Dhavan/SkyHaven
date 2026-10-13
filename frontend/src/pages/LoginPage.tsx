@@ -93,7 +93,10 @@ export const LoginPage: React.FC = () => {
 
           <div className="mt-6 pt-6 border-t border-slate-100 dark:border-slate-800 text-center text-xs text-slate-500">
             Don't have an account?{' '}
-            <Link to="/register" className="font-bold text-brand-500 hover:underline">
+            <Link
+              to={redirect && redirect !== '/' ? `/register?redirect=${encodeURIComponent(redirect)}` : '/register'}
+              className="font-bold text-brand-500 hover:underline"
+            >
               Create an account
             </Link>
           </div>

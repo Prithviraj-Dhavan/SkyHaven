@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, QrCode, ArrowRight, Clock } from 'lucide-react';
+import { ArrowLeft, QrCode, ArrowRight, Clock, User } from 'lucide-react';
 import { useBookingStore } from '../store/bookingStore';
 import { useAuth } from '../context/AuthContext';
 import { api } from '../services/api';
@@ -8,6 +8,7 @@ import { Passenger, PassengerType, FlightSeat } from '../types';
 import { PassengerForm } from '../components/booking/PassengerForm';
 import { PaymentModal } from '../components/booking/PaymentModal';
 import { ReleaseSeatsModal } from '../components/booking/ReleaseSeatsModal';
+import { CheckoutAuthModal } from '../components/booking/CheckoutAuthModal';
 import { useCountdown, formatTimer } from '../hooks';
 
 export const CheckoutPage: React.FC = () => {
@@ -25,6 +26,7 @@ export const CheckoutPage: React.FC = () => {
 
   const [passengers, setPassengers] = useState<Passenger[]>([]);
   const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [isReleaseModalOpen, setIsReleaseModalOpen] = useState(false);
   const [isReleasing, setIsReleasing] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -40,29 +42,47 @@ export const CheckoutPage: React.FC = () => {
   useEffect(() => {
     if (isLoading) return;
 
-    if (!user) {
-      navigate('/login?redirect=/checkout');
-      return;
-    }
-
     if (!selectedFlight || selectedSeats.length === 0) {
       navigate('/search');
       return;
     }
 
-    const initialPassengers: Passenger[] = selectedSeats.map((seat: FlightSeat, idx: number) => ({
-      name: idx === 0 ? (user?.name || '') : '',
-      email: idx === 0 ? (user?.email || '') : '',
-      documentNumber: '',
-      type: 'ADULT' as PassengerType,
-      seatId: seat.id,
-      seatNumber: seat.seatNumber,
-      cabinClass: seat.cabinClass,
-      price: Number(selectedFlight.basePrice) + Number(seat.priceModifier),
-    }));
+    const storedPassengers = useBookingStore.getState().passengers;
+    const initialPassengers: Passenger[] = selectedSeats.map((seat: FlightSeat, idx: number) => {
+      const existing = storedPassengers?.find((p) => p.seatId === seat.id) || storedPassengers?.[idx];
+      return {
+        name: existing?.name || (idx === 0 ? (user?.name || '') : ''),
+        email: existing?.email || (idx === 0 ? (user?.email || '') : ''),
+        documentNumber: existing?.documentNumber || '',
+        type: existing?.type || ('ADULT' as PassengerType),
+        seatId: seat.id,
+        seatNumber: seat.seatNumber,
+        cabinClass: seat.cabinClass,
+        price: Number(selectedFlight.basePrice) + Number(seat.priceModifier),
+      };
+    });
 
     setPassengers(initialPassengers);
-  }, [selectedFlight, selectedSeats, user, isLoading, navigate]);
+  }, [selectedFlight, selectedSeats, isLoading, navigate]);
+
+  // If user logs in while on checkout page, prefill first passenger details if empty
+  useEffect(() => {
+    if (user && passengers.length > 0) {
+      setPassengers((prev) => {
+        if (prev.length > 0 && (!prev[0].name || !prev[0].email)) {
+          const updated = [...prev];
+          updated[0] = {
+            ...updated[0],
+            name: updated[0].name || user.name || '',
+            email: updated[0].email || user.email || '',
+          };
+          useBookingStore.getState().setPassengers(updated);
+          return updated;
+        }
+        return prev;
+      });
+    }
+  }, [user]);
 
   useEffect(() => {
     if (!user || !selectedFlight || allSeatIds.length === 0) return;
@@ -94,6 +114,7 @@ export const CheckoutPage: React.FC = () => {
     setPassengers((prev) => {
       const next = [...prev];
       next[index] = { ...next[index], ...updated };
+      useBookingStore.getState().setPassengers(next);
       return next;
     });
   };
@@ -105,20 +126,11 @@ export const CheckoutPage: React.FC = () => {
     : 0;
   const totalAmount = Math.round(outboundTotal + returnTotal);
 
-  const handleOpenPayment = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    for (let i = 0; i < passengers.length; i++) {
-      const p = passengers[i];
-      if (!p.name.trim() || !p.email.trim()) {
-        setError(`Please complete Name and Email for Passenger ${i + 1}.`);
-        return;
-      }
-    }
-
-    setError(null);
-
+  const proceedWithPaymentSession = async () => {
     try {
+      setIsProcessing(true);
+      setError(null);
+
       const holdRes = await api.holdSeats({ seatIds: allSeatIds });
       if (!holdRes.success) {
         setError('Could not hold your seats. Please try again.');
@@ -133,7 +145,36 @@ export const CheckoutPage: React.FC = () => {
       }
     } catch (err: any) {
       setError(err.message || 'Seats were unavailable or payment session could not start.');
+    } finally {
+      setIsProcessing(false);
     }
+  };
+
+  const handleOpenPayment = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    for (let i = 0; i < passengers.length; i++) {
+      const p = passengers[i];
+      if (!p.name.trim() || !p.email.trim()) {
+        setError(`Please complete Name and Email for Passenger ${i + 1}.`);
+        return;
+      }
+    }
+
+    setError(null);
+
+    // If not logged in, prompt authentication without navigating away from checkout!
+    if (!user) {
+      setIsAuthModalOpen(true);
+      return;
+    }
+
+    await proceedWithPaymentSession();
+  };
+
+  const handleAuthSuccess = async () => {
+    setIsAuthModalOpen(false);
+    await proceedWithPaymentSession();
   };
 
   const handleClosePayment = () => {
@@ -244,6 +285,24 @@ export const CheckoutPage: React.FC = () => {
       {error && (
         <div className="p-3.5 sm:p-4 rounded-2xl bg-rose-500/10 border border-rose-500/20 text-rose-600 dark:text-rose-400 text-xs font-semibold">
           {error}
+        </div>
+      )}
+
+      {!user && (
+        <div className="p-3.5 sm:p-4 rounded-2xl bg-blue-500/10 border border-blue-500/30 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-blue-700 dark:text-blue-300 text-xs font-medium animate-in fade-in duration-200">
+          <div className="flex items-center gap-2.5">
+            <User className="w-4 h-4 text-[#0062E3] dark:text-[#00B2D6] shrink-0" />
+            <span>
+              Booking as guest: Fill in your traveler details below. You will be prompted to authenticate when clicking <strong>Proceed to Payment</strong> to secure your e-tickets.
+            </span>
+          </div>
+          <button
+            type="button"
+            onClick={() => setIsAuthModalOpen(true)}
+            className="px-3.5 py-1.5 rounded-xl bg-[#0062E3] hover:bg-[#0051c7] text-white font-bold transition-all cursor-pointer shrink-0 text-xs self-start sm:self-auto shadow-xs"
+          >
+            Sign In Now
+          </button>
         </div>
       )}
 
@@ -383,6 +442,14 @@ export const CheckoutPage: React.FC = () => {
         seats={selectedSeats}
         secondsLeft={secondsLeft}
         isProcessing={isReleasing}
+      />
+
+      <CheckoutAuthModal
+        isOpen={isAuthModalOpen}
+        onClose={() => setIsAuthModalOpen(false)}
+        onSuccess={handleAuthSuccess}
+        defaultEmail={passengers[0]?.email || ''}
+        defaultName={passengers[0]?.name || ''}
       />
     </div>
   );

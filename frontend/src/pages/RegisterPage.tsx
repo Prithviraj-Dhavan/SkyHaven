@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { Plane, Mail, Lock, User, Phone, ArrowRight, ShieldCheck } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { Input } from '../components/ui/Input';
@@ -8,6 +8,8 @@ import { Card } from '../components/ui/Card';
 
 export const RegisterPage: React.FC = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const redirect = searchParams.get('redirect') || '/';
   const { register } = useAuth();
 
   const [name, setName] = useState('');
@@ -23,7 +25,7 @@ export const RegisterPage: React.FC = () => {
     setError(null);
     try {
       await register(name, email, password, phone);
-      navigate('/');
+      navigate(redirect);
     } catch (err: any) {
       setError(err.message || 'Registration failed');
     } finally {
@@ -109,7 +111,10 @@ export const RegisterPage: React.FC = () => {
 
           <div className="mt-6 pt-6 border-t border-slate-100 dark:border-slate-800 text-center text-xs text-slate-500">
             Already registered?{' '}
-            <Link to="/login" className="font-bold text-brand-500 hover:underline">
+            <Link
+              to={redirect && redirect !== '/' ? `/login?redirect=${encodeURIComponent(redirect)}` : '/login'}
+              className="font-bold text-brand-500 hover:underline"
+            >
               Sign In
             </Link>
           </div>
