@@ -16,8 +16,8 @@ export const holdSeatsSchema = z.object({
 
 export const releaseHoldSchema = z.object({
   body: z.object({
-    seatIds: z.array(z.string().uuid()).min(1, 'At least one seat is required'),
-  }),
+    seatIds: z.array(z.string().uuid()).optional(),
+  }).optional(),
 });
 
 export const createPaymentIntentSchema = z.object({

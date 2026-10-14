@@ -26,6 +26,7 @@ interface BookingStore {
   setAiDrawerOpen: (open: boolean) => void;
   setLastConfirmedBooking: (booking: Booking | null) => void;
   resetBooking: () => void;
+  clearHold: () => void;
 }
 
 const initialSearchParams: FlightSearchParams = {
@@ -63,13 +64,10 @@ export const useBookingStore = create<BookingStore>()(
         set((state) => {
           // If setting the exact same flight, keep selected seats & hold timer intact!
           if (state.selectedFlight && flight && state.selectedFlight.id === flight.id) {
-            const myHeldSeats = flight.seats?.filter((s) => s.isHeldByMe) || [];
-            const retainedSeats = state.selectedSeats.length > 0 ? state.selectedSeats : myHeldSeats;
-            const holdExpires = state.holdExpiresAt || (myHeldSeats.length > 0 ? (myHeldSeats[0].heldUntil || null) : null);
             return {
               selectedFlight: flight,
-              selectedSeats: retainedSeats,
-              holdExpiresAt: holdExpires,
+              selectedSeats: state.selectedSeats,
+              holdExpiresAt: state.holdExpiresAt,
             };
           }
           const myHeldSeats = flight?.seats?.filter((s) => s.isHeldByMe) || [];
@@ -84,11 +82,9 @@ export const useBookingStore = create<BookingStore>()(
       setReturnFlight: (flight) =>
         set((state) => {
           if (state.returnFlight && flight && state.returnFlight.id === flight.id) {
-            const myHeldSeats = flight.seats?.filter((s) => s.isHeldByMe) || [];
-            const retainedSeats = state.returnSeats.length > 0 ? state.returnSeats : myHeldSeats;
             return {
               returnFlight: flight,
-              returnSeats: retainedSeats,
+              returnSeats: state.returnSeats,
             };
           }
           const myHeldSeats = flight?.seats?.filter((s) => s.isHeldByMe) || [];
@@ -103,8 +99,10 @@ export const useBookingStore = create<BookingStore>()(
           const isAlreadySelected = state.selectedSeats.some((s) => s.id === seat.id);
 
           if (isAlreadySelected) {
+            const nextSeats = state.selectedSeats.filter((s) => s.id !== seat.id);
             return {
-              selectedSeats: state.selectedSeats.filter((s) => s.id !== seat.id),
+              selectedSeats: nextSeats,
+              holdExpiresAt: nextSeats.length === 0 ? null : state.holdExpiresAt,
             };
           }
 
@@ -126,8 +124,9 @@ export const useBookingStore = create<BookingStore>()(
           const isAlreadySelected = state.returnSeats.some((s) => s.id === seat.id);
 
           if (isAlreadySelected) {
+            const nextSeats = state.returnSeats.filter((s) => s.id !== seat.id);
             return {
-              returnSeats: state.returnSeats.filter((s) => s.id !== seat.id),
+              returnSeats: nextSeats,
             };
           }
 
@@ -154,6 +153,13 @@ export const useBookingStore = create<BookingStore>()(
         }),
       setAiDrawerOpen: (open) => set({ isAiDrawerOpen: open }),
       setLastConfirmedBooking: (booking) => set({ lastConfirmedBooking: booking }),
+      clearHold: () =>
+        set({
+          selectedSeats: [],
+          returnSeats: [],
+          passengers: [],
+          holdExpiresAt: null,
+        }),
       resetBooking: () =>
         set({
           selectedFlight: null,

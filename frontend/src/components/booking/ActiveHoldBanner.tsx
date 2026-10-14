@@ -14,10 +14,10 @@ export const ActiveHoldBanner: React.FC = () => {
   const {
     selectedFlight,
     selectedSeats,
+    returnSeats,
     holdExpiresAt,
-    setHoldExpiresAt,
     restoreHold,
-    resetBooking,
+    clearHold,
   } = useBookingStore();
 
   const [isSyncing, setIsSyncing] = useState(false);
@@ -44,7 +44,7 @@ export const ActiveHoldBanner: React.FC = () => {
         } else if (res.success && !res.data.hasActiveHold) {
           // No active hold on server
           if (holdExpiresAt) {
-            setHoldExpiresAt(null);
+            clearHold();
           }
         }
       })
@@ -58,13 +58,18 @@ export const ActiveHoldBanner: React.FC = () => {
     return () => {
       isMounted = false;
     };
-  }, [user, restoreHold, setHoldExpiresAt]);
+  }, [user, restoreHold, clearHold]);
 
   const handleExpire = async () => {
-    setHoldExpiresAt(null);
-    if (selectedSeats.length > 0) {
-      await api.releaseHold({ seatIds: selectedSeats.map((s) => s.id) }).catch(() => {});
+    const seatIds = [
+      ...selectedSeats.map((s) => s.id),
+      ...returnSeats.map((s) => s.id),
+    ];
+    clearHold();
+    if (seatIds.length > 0) {
+      await api.releaseHold({ seatIds }).catch(() => {});
     }
+    window.dispatchEvent(new CustomEvent('skyhaven:seats-released'));
   };
 
   const secondsLeft = useCountdown(holdExpiresAt, Boolean(holdExpiresAt), handleExpire);
@@ -72,10 +77,21 @@ export const ActiveHoldBanner: React.FC = () => {
   const handleConfirmRelease = async () => {
     try {
       setIsReleasing(true);
-      const seatIds = selectedSeats.map((s) => s.id);
-      setHoldExpiresAt(null);
-      resetBooking();
-      await api.releaseHold({ seatIds }).catch(() => {});
+      const seatIds = [
+        ...selectedSeats.map((s) => s.id),
+        ...returnSeats.map((s) => s.id),
+      ];
+      // 1. Release hold in the database first
+      await api.releaseHold({ seatIds: seatIds.length > 0 ? seatIds : undefined }).catch((err) => {
+        console.warn('Failed to release hold:', err);
+      });
+
+      // 2. Clear client hold and dismiss banner
+      clearHold();
+      setIsDismissed(true);
+
+      // 3. Notify any listeners (e.g. FlightDetailsPage seat map)
+      window.dispatchEvent(new CustomEvent('skyhaven:seats-released'));
     } finally {
       setIsReleasing(false);
       setIsReleaseModalOpen(false);

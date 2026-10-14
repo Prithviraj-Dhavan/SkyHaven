@@ -25,6 +25,7 @@ export const FlightDetailsPage: React.FC = () => {
     setActiveLeg,
     holdExpiresAt,
     setHoldExpiresAt,
+    clearHold,
   } = useBookingStore();
 
   const [flight, setFlight] = useState<Flight | null>(null);
@@ -61,11 +62,11 @@ export const FlightDetailsPage: React.FC = () => {
   }, [id, returnFlight?.id, setSelectedFlight, setReturnFlight]);
 
   const handleHoldExpired = async () => {
-    setHoldExpiresAt(null);
     const allSeatIds = [
       ...selectedSeats.map((s) => s.id),
       ...returnSeats.map((s) => s.id),
     ];
+    clearHold();
     if (allSeatIds.length > 0) {
       await api.releaseHold({ seatIds: allSeatIds }).catch(() => {});
     }
@@ -86,13 +87,20 @@ export const FlightDetailsPage: React.FC = () => {
         fetchFlight(true);
       }
     };
+
+    const onSeatsReleased = () => {
+      fetchFlight(true);
+    };
+
     window.addEventListener('visibilitychange', onVisibilityChange);
     window.addEventListener('focus', onVisibilityChange);
+    window.addEventListener('skyhaven:seats-released', onSeatsReleased);
 
     return () => {
       clearInterval(interval);
       window.removeEventListener('visibilitychange', onVisibilityChange);
       window.removeEventListener('focus', onVisibilityChange);
+      window.removeEventListener('skyhaven:seats-released', onSeatsReleased);
     };
   }, [fetchFlight]);
 
@@ -334,7 +342,13 @@ export const FlightDetailsPage: React.FC = () => {
           <SeatMap
             seats={activeFlightToShow.seats || []}
             selectedSeats={currentSeats}
-            onToggleSeat={(seat: FlightSeat) => currentToggleSeat(seat, maxPassengers)}
+            onToggleSeat={(seat: FlightSeat) => {
+              const isAlreadySelected = currentSeats.some((s) => s.id === seat.id);
+              if (isAlreadySelected) {
+                api.releaseHold({ seatIds: [seat.id] }).catch(() => {});
+              }
+              currentToggleSeat(seat, maxPassengers);
+            }}
             maxPassengers={maxPassengers}
             onContinue={handleProceedToCheckout}
           />

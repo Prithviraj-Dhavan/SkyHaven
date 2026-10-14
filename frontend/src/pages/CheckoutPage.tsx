@@ -22,6 +22,7 @@ export const CheckoutPage: React.FC = () => {
     setLastConfirmedBooking,
     holdExpiresAt,
     setHoldExpiresAt,
+    clearHold,
   } = useBookingStore();
 
   const [passengers, setPassengers] = useState<Passenger[]>([]);
@@ -33,6 +34,7 @@ export const CheckoutPage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [clientSecret, setClientSecret] = useState<string | null>(null);
   const bookingConfirmedRef = useRef(false);
+  const isReleasingRef = useRef(false);
 
   const allSeatIds = [
     ...selectedSeats.map((s: FlightSeat) => s.id),
@@ -85,11 +87,11 @@ export const CheckoutPage: React.FC = () => {
   }, [user]);
 
   useEffect(() => {
-    if (!user || !selectedFlight || allSeatIds.length === 0) return;
+    if (!user || !selectedFlight || allSeatIds.length === 0 || isReleasingRef.current) return;
     if (!holdExpiresAt) {
       api.holdSeats({ seatIds: allSeatIds })
         .then((res) => {
-          if (res.success && res.data?.expiresAt) {
+          if (res.success && res.data?.expiresAt && !isReleasingRef.current) {
             setHoldExpiresAt(res.data.expiresAt);
           }
         })
@@ -100,12 +102,20 @@ export const CheckoutPage: React.FC = () => {
   }, [user, selectedFlight, allSeatIds.length, holdExpiresAt, setHoldExpiresAt]);
 
   const handleHoldExpired = async () => {
+    isReleasingRef.current = true;
     setIsPaymentModalOpen(false);
     setClientSecret(null);
-    setHoldExpiresAt(null);
+    const flightId = selectedFlight?.id;
+    const seatIds = [...allSeatIds];
+    clearHold();
     setError('Your 5-minute seat hold expired. Please select your seats again.');
-    await api.releaseHold({ seatIds: allSeatIds }).catch(() => {});
-    navigate(`/flights/${selectedFlight?.id}`);
+    if (seatIds.length > 0) {
+      await api.releaseHold({ seatIds }).catch(() => {});
+    }
+    window.dispatchEvent(new CustomEvent('skyhaven:seats-released'));
+    if (flightId) {
+      navigate(`/flights/${flightId}`);
+    }
   };
 
   const secondsLeft = useCountdown(holdExpiresAt, Boolean(holdExpiresAt), handleHoldExpired);
@@ -184,12 +194,31 @@ export const CheckoutPage: React.FC = () => {
 
   const handleConfirmRelease = async () => {
     try {
+      isReleasingRef.current = true;
       setIsReleasing(true);
       setIsPaymentModalOpen(false);
       setClientSecret(null);
-      setHoldExpiresAt(null);
-      await api.releaseHold({ seatIds: allSeatIds }).catch(() => {});
-      navigate(`/flights/${selectedFlight?.id}`);
+
+      const flightId = selectedFlight?.id;
+      const seatIdsToRelease = allSeatIds.length > 0 ? allSeatIds : undefined;
+
+      // 1. Release hold on the backend first
+      await api.releaseHold({ seatIds: seatIdsToRelease }).catch((err) => {
+        console.warn('Failed to release hold:', err);
+      });
+
+      // 2. Clear client hold & seats
+      clearHold();
+
+      // 3. Dispatch release notification for active flight pages
+      window.dispatchEvent(new CustomEvent('skyhaven:seats-released'));
+
+      // 4. Navigate back to the flight details page
+      if (flightId) {
+        navigate(`/flights/${flightId}`);
+      } else {
+        navigate('/search');
+      }
     } finally {
       setIsReleasing(false);
       setIsReleaseModalOpen(false);

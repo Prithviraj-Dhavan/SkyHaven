@@ -19,7 +19,7 @@ export class BookingsController {
   public static async releaseHold(req: Request, res: Response, next: NextFunction) {
     try {
       const userId = req.user!.id;
-      const { seatIds } = req.body;
+      const seatIds = req.body?.seatIds;
       const result = await BookingsService.releaseHold(userId, seatIds);
       res.status(200).json({ success: true, data: result });
     } catch (error) {
